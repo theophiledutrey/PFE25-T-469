@@ -23,15 +23,18 @@
 - name: Reload systemd daemon
   ansible.builtin.systemd:
     daemon_reload: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Enable and start manager service
   ansible.builtin.systemd:
     name: wazuh-manager
     state: started
     enabled: true
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Enable and start Filebeat service
   ansible.builtin.systemd:
     name: filebeat
     state: started
     enabled: true
+  ignore_errors: "{{ ansible_check_mode }}"

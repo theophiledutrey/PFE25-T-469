@@ -29,6 +29,7 @@
     state: present
   environment:
     WAZUH_MANAGER: "{{ wazuh_manager_ip }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Enable and start Wazuh agent service
   systemd:
@@ -36,3 +37,4 @@
     state: started
     enabled: yes
     daemon_reload: yes
+  ignore_errors: "{{ ansible_check_mode }}"

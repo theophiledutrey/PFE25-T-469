@@ -1,0 +1,5 @@
+galaxy_info:
+  role_name: fail2ban
+  author: PME Automation
+  description: Intrusion prevention system
+

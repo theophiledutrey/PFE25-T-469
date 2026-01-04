@@ -1,0 +1,39 @@
+---
+- name: Define role dependencies
+  set_fact:
+    role_dependencies:
+      wazuh-agent:
+        requires: []
+        suggests: [common, ufw]
+      wazuh-server:
+        requires: [wazuh-indexer]
+        suggests: [wazuh-dashboard]
+      wazuh-dashboard:
+        requires: [wazuh-indexer]
+        suggests: []
+      nginx:
+        requires: [ufw]
+        suggests: [fail2ban]
+      docker:
+        requires: [common]
+        suggests: [ufw]
+
+- name: Check for missing dependencies
+  fail:
+    msg: "Role '{{ item }}' requires: {{ role_dependencies[item].requires | join(', ') }}"
+  when:
+    - item in enabled_roles
+    - item in role_dependencies
+    - role_dependencies[item].requires | difference(enabled_roles) | length > 0
+  loop: "{{ enabled_roles }}"
+
+- name: Warn about suggested dependencies
+  debug:
+    msg: "Warning: Role '{{ item }}' suggests also enabling: {{ missing_suggestions | join(', ') }}"
+  vars:
+    missing_suggestions: "{{ role_dependencies[item].suggests | default([]) | difference(enabled_roles) }}"
+  when:
+    - item in enabled_roles
+    - item in role_dependencies
+    - missing_suggestions | length > 0
+  loop: "{{ enabled_roles }}"

@@ -79,16 +79,18 @@
   register: wazuh_password
   run_once: true
   changed_when: false
+  when: not ansible_check_mode
 
 - name: Show Wazuh admin password
   debug:
-    msg: "{{ wazuh_password.stdout_lines }}"
+    msg: "{{ wazuh_password.stdout_lines | default(['(Dry Run: Password not available)']) }}"
   run_once: true
 
 - name: Save Wazuh admin password to local file
   copy:
-    content: "{{ wazuh_password.stdout }}"
+    content: "{{ wazuh_password.stdout | default('(Dry Run: Password not available)') }}"
     dest: "{{ lookup('env', 'HOME') }}/Downloads/wazuh-admin-password.txt"
   delegate_to: localhost
   run_once: true
   become: false
+  when: not ansible_check_mode

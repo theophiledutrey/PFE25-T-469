@@ -2,19 +2,15 @@
 
   These are bigger ideas to evolve your project from a set of scripts into a mature, maintainable tool.
 
+   1. rework prerequisites check: make it with ansible
+      fix dry run
+
    2. Adopt a GitOps Flow:
        * Concept: Use Git as the central source of truth for your server configurations. Instead of a user running the pme_manager and immediately
          pushing changes to a server, the manager would help them commit a variable change to a Git repository.
        * Benefit: A CI/CD pipeline (like GitHub Actions) can then automatically run the Molecule tests on the change and, if they pass, deploy it.
          This gives you an audit log of all changes, the ability to review/approve configurations via pull requests, and a much safer, more
          controlled deployment process.
-
-   3. Dynamic Roles and Extensibility:
-       * Concept: Make the toolset itself configurable. Right now you have a fixed stack. Evolve the project into a framework where users can
-         choose which security components they want.
-       * Benefit: In your all.yml, you could have a list like enabled_roles: [common, ufw, wazuh-agent]. Your main playbook would then
-         intelligently loop through this list and only apply the selected roles. This makes your tool far more flexible and adaptable to different
-         needs.
 
    4. Environment-Specific Configurations:
        * Concept: Your current inventory is static. Real-world use involves multiple environments (development, staging, production) with

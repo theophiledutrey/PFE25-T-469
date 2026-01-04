@@ -35,11 +35,14 @@
     src: /tmp/emerging.rules.tar.gz
     dest: /tmp/
     remote_src: yes
+  ignore_errors: "{{ ansible_check_mode }}"
+
 
 - name: Move rules to Suricata rules directory
   shell: mv /tmp/rules/*.rules /etc/suricata/rules/
   args:
     creates: /etc/suricata/rules/emerging-all.rules # Assuming this file exists in the ruleset, acts as a check
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Set permissions for rules
   file:
@@ -47,18 +50,21 @@
     state: directory
     mode: '0777'
     recurse: yes
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Configure Suricata HOME-NET
   lineinfile:
     path: /etc/suricata/suricata.yaml
     regexp: '^(HOME_NET|HOME-NET):'
     line: 'HOME-NET: "[{{ ansible_facts.default_ipv4.address }}]"'
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Configure Suricata EXTERNAL-NET
   lineinfile:
     path: /etc/suricata/suricata.yaml
     regexp: '^(EXTERNAL_NET|EXTERNAL-NET):'
     line: 'EXTERNAL-NET: "any"'
+  ignore_errors: "{{ ansible_check_mode }}"
 
 # Note: Ideally we would use a template or yq, but for simple replacements lineinfile/replace works if structure is predictable.
 # The user asked for specific Yaml structures for rule-files. 
@@ -70,10 +76,12 @@
     path: /etc/suricata/suricata.yaml
     regexp: '^default-rule-path:'
     line: 'default-rule-path: /etc/suricata/rules'
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Disable default rule-files configuration
   shell: |
     sed -i -e '/# BEGIN ANSIBLE MANAGED BLOCK RULE FILES/,/# END ANSIBLE MANAGED BLOCK RULE FILES/b' -e 's/^\s*rule-files:/rule-files-bak:/' /etc/suricata/suricata.yaml
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Configure rule-files
   blockinfile:
@@ -83,12 +91,14 @@
       rule-files:
         - "*.rules"
     marker: "# {mark} ANSIBLE MANAGED BLOCK RULE FILES"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Enable global stats
   lineinfile:
     path: /etc/suricata/suricata.yaml
     regexp: '^\s*stats:\s*$' # Matches "stats:"
     line: 'stats:'
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Enable global stats enabled flag
   lineinfile:
@@ -96,31 +106,36 @@
     insertafter: '^\s*stats:\s*$'
     line: '  enabled: yes'
     # This is a bit risky if indentation doesn't match, but standard suricata.yaml usually has this structure.
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Remove duplicate Ansible managed interface block
   blockinfile:
     path: /etc/suricata/suricata.yaml
     marker: "# {mark} ANSIBLE MANAGED BLOCK INTERFACE"
     state: absent
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Configure Suricata interface to default interface
   shell: "sed -i '/^af-packet:/,/^[a-z]/ s/interface: .*/interface: {{ ansible_facts.default_ipv4.interface }}/' /etc/suricata/suricata.yaml"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Test Suricata configuration
   command: suricata -T -c /etc/suricata/suricata.yaml
   register: suricata_config_test
-  ignore_errors: yes
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Display Suricata config test errors
   debug:
     var: suricata_config_test.stdout_lines + suricata_config_test.stderr_lines
   when: suricata_config_test.failed
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Restart Suricata service
   service:
     name: suricata
     state: restarted
     enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Configure Wazuh agent to read Suricata logs
   blockinfile:
@@ -132,8 +147,10 @@
         <location>/var/log/suricata/eve.json</location>
       </localfile>
     marker: "<!-- {mark} ANSIBLE MANAGED BLOCK SURICATA -->"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: Restart Wazuh agent
   service:
     name: wazuh-agent
     state: restarted
+  ignore_errors: "{{ ansible_check_mode }}"

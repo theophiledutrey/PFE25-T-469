@@ -1,0 +1,5 @@
+galaxy_info:
+  role_name: suricata
+  author: PME Automation
+  description: IDS/IPS Engine
+

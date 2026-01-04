@@ -31,7 +31,7 @@
 - name: Print agent removal output
   debug:
     var: manage_agents_output.stdout_lines
-  when: manage_agents_output is defined
+  when: manage_agents_output.stdout_lines is defined
 
 # sudo /var/ossec/bin/manage_agents -r 001
 # sudo /var/ossec/bin/agent-auth -m 192.168.64.12
@@ -59,14 +59,18 @@
     - wazuh-dashboard
     - filebeat
     - wazuh-agent
+    - wazuh-agent
   ignore_errors: yes
+  failed_when: false
 
 - name: Disable Wazuh agent service
   systemd:
     name: wazuh-agent
     enabled: no
     daemon_reload: yes
+    daemon_reload: yes
   ignore_errors: yes
+  failed_when: false
 
 - name: Remove Wazuh packages
   apt:

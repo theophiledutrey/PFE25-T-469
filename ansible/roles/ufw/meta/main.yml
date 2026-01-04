@@ -1,0 +1,5 @@
+galaxy_info:
+  role_name: ufw
+  author: PME Automation
+  description: Uncomplicated Firewall
+

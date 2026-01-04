@@ -1,0 +1,5 @@
+galaxy_info:
+  role_name: cleanup
+  author: PME Automation
+  description: Removes security components and configuration
+

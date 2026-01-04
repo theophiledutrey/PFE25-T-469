@@ -5,19 +5,25 @@
   vars_files:
     - ../inventory/group_vars/all.yml
 
-  roles:
-    - role: cleanup
-      tags: cleanup
+  tasks:
+    - name: Check role dependencies
+      include_tasks: ../tasks/check_dependencies.yml
 
-    - role: common
-      tags: common
+    - name: Display enabled roles
+      debug:
+        msg: "Installing roles: {{ enabled_roles | intersect(['cleanup', 'common', 'wazuh-agent', 'suricata']) | join(', ') }}"
 
-    - role: wazuh-agent
-      tags: wazuh-agent
-
-    - role: suricata
-      tags: suricata
-      
+    - name: Apply enabled roles in order
+      include_role:
+        name: "{{ role_item }}"
+      loop:
+        - cleanup
+        - common
+        - wazuh-agent
+        - suricata
+      loop_control:
+        loop_var: role_item
+      when: role_item in enabled_roles
 
 - name: Deploy PME Security Automation Prototype
   hosts: security_server
@@ -30,27 +36,27 @@
       debug:
         msg: "Deploying for {{ endpoint_count }} endpoints on {{ target_os }}"
 
-  roles:
-    - role: cleanup
-      tags: cleanup
-      
-    - role: common
-      tags: common
+    - name: Check role dependencies
+      include_tasks: ../tasks/check_dependencies.yml
 
-    - role: wazuh-indexer
-      tags: wazuh-indexer
+    - name: Display enabled roles
+      debug:
+        msg: "Installing roles: {{ enabled_roles | intersect(['cleanup', 'common', 'wazuh-indexer', 'wazuh-server', 'wazuh-dashboard', 'ufw', 'fail2ban']) | join(', ') }}"
 
-    - role: wazuh-server
-      tags: wazuh-server
-
-    - role: wazuh-dashboard
-      tags: wazuh-dashboard
-
-    - role: ufw
-      tags: ufw
-
-    - role: fail2ban
-      tags: fail2ban
+    - name: Apply enabled roles in order
+      include_role:
+        name: "{{ role_item }}"
+      loop:
+        - cleanup
+        - common
+        - wazuh-indexer
+        - wazuh-server
+        - wazuh-dashboard
+        - ufw
+        - fail2ban
+      loop_control:
+        loop_var: role_item
+      when: role_item in enabled_roles
 
 
       

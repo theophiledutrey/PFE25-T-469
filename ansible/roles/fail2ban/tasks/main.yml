@@ -20,4 +20,5 @@
     name: fail2ban
     state: started
     enabled: yes
+  ignore_errors: "{{ ansible_check_mode }}"
   become: true
