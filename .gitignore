@@ -130,10 +130,17 @@ vault_pass
 *vault*
 !vault_example.yml
 
-# Inventories with sensitive data (keep examples, ignore real ones)
+# Ignore everything in the real inventory (secrets, hosts, etc.)
 inventory/
-hosts
+
+# Unignore the example directory itself
 !inventory/example/
+
+# Unignore everything inside example/ (files + subdirs)
+!inventory/example/**
+
+# Optional: If you have deeper structure, this ensures recursive unignore
+!inventory/example/**/*
 
 # Ansible runtime artifacts
 .ansible/
