@@ -68,7 +68,6 @@
     name: wazuh-agent
     enabled: no
     daemon_reload: yes
-    daemon_reload: yes
   ignore_errors: yes
   failed_when: false
 

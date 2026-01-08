@@ -1,5 +1,6 @@
 ---
 ufw_allow_dashboard: true
+ufw_allow_wazuh_server: true
 allowed_ssh_ips: []
 ufw_additional_tcp_ports: []
 ufw_additional_udp_ports: []

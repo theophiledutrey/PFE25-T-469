@@ -55,31 +55,31 @@
     rule: allow
     port: "{{ wazuh_dashboard_port | default('443') }}"
     proto: tcp
-  when: ufw_allow_dashboard | bool
+  when: ufw_allow_dashboard | bool or 'wazuh-dashboard' in (enabled_roles | default([]))
   become: true
 
-- name: Allow Wazuh Dashboard (Agent communication)
+- name: Allow Wazuh Server (Agent communication)
   ufw:
     rule: allow
     port: "{{ wazuh_agent_port | default('1514') }}"
     proto: tcp
-  when: ufw_allow_dashboard | bool
+  when: ufw_allow_wazuh_server | bool or 'wazuh-server' in (enabled_roles | default([]))
   become: true
 
-- name: Allow Wazuh Dashboard (Agent registration)
+- name: Allow Wazuh Server (Agent registration)
   ufw:
     rule: allow
     port: "{{ wazuh_registration_port | default('1515') }}"
     proto: tcp
-  when: ufw_allow_dashboard | bool
+  when: ufw_allow_wazuh_server | bool or 'wazuh-server' in (enabled_roles | default([]))
   become: true
 
-- name: Allow Wazuh Dashboard (Wazuh API)
+- name: Allow Wazuh Server (Wazuh API)
   ufw:
     rule: allow
     port: "{{ wazuh_api_port | default('55000') }}"
     proto: tcp
-  when: ufw_allow_dashboard | bool
+  when: ufw_allow_wazuh_server | bool or 'wazuh-server' in (enabled_roles | default([]))
   become: true
 
 - name: Allow additional TCP ports

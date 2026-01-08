@@ -8,7 +8,6 @@
     name: suricata
     state: stopped
     enabled: no
-    enabled: no
   ignore_errors: yes
   failed_when: false
 
