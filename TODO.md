@@ -26,3 +26,6 @@
        * Concept: Implement Molecule (https://ansible.readthedocs.io/projects/molecule/) to test roles in isolation using Docker containers.
        * Benefit: Allows you to verify that a role (e.g., wazuh-agent) correctly installs and configures the service before running it against a
          real VM. This drastically reduces the "trial and error" loop and prevents regressions.
+
+
+

@@ -2,3 +2,4 @@ click
 rich
 ruamel.yaml
 streamlit
+pytest

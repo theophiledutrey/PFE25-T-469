@@ -51,14 +51,16 @@
       register: installation_log
       ignore_errors: true
 
-    - name: Print Wazuh installation log
-      debug:
-        msg: "{{ installation_log['content'] | b64decode | split('\n') }}"
+    - name: Save Wazuh installation log to controller
+      copy:
+        content: "{{ installation_log['content'] | b64decode }}"
+        dest: "{{ playbook_dir }}/../logs/wazuh_indexer_{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}.log"
+      delegate_to: localhost
       when: installation_log is success
 
-    - name: Fail task after printing log
+    - name: Fail task after saving log
       fail:
-        msg: "Wazuh Indexer installation failed. See log output above."
+        msg: "Wazuh Indexer installation failed. Log saved to logs/wazuh_indexer_{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}.log"
 
 - name: Start Wazuh Indexer Cluster
   command: ./wazuh-install.sh --start-cluster
@@ -75,7 +77,11 @@
   when: start_cluster_result.changed
 
 - name: Extract Wazuh admin password
-  shell: tar -O -xf /opt/wazuh-install/wazuh-install-files.tar wazuh-install-files/wazuh-passwords.txt | grep -A 1 "admin"
+  shell: |
+    tar -O -xf /opt/wazuh-install/wazuh-install-files.tar wazuh-install-files/wazuh-passwords.txt | \
+    grep -A 1 "indexer_username: 'admin'" | \
+    tail -n 1 | \
+    awk -F"'" '{print $2}'
   register: wazuh_password
   run_once: true
   changed_when: false
@@ -83,7 +89,7 @@
 
 - name: Show Wazuh admin password
   debug:
-    msg: "{{ wazuh_password.stdout_lines | default(['(Dry Run: Password not available)']) }}"
+    msg: "Admin Password: {{ wazuh_password.stdout | default('(Dry Run: Password not available)') }}"
   run_once: true
 
 - name: Save Wazuh admin password to local file
