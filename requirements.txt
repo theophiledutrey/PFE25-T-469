@@ -2,4 +2,5 @@ click
 rich
 ruamel.yaml
 pytest
+ansible-core
 nicegui

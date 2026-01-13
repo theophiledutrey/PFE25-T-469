@@ -1,0 +1,12 @@
+services:
+  reef-manager:
+    image: reef
+    build: .
+    ports:
+      - "54540:54540"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    stdin_open: true
+    tty: true

@@ -79,31 +79,44 @@ def show_configuration():
             fresh_config = load_current_config()
             count = fresh_config.get('endpoint_count', 0)
             
-            # Helper to parse current inventory (simplified)
+            # Helper to parse current inventory
             existing_agents = []
+            existing_manager = {'user': 'root', 'password': ''}
+
             if HOSTS_INI_FILE.exists():
                 content = HOSTS_INI_FILE.read_text()
                 lines = content.splitlines()
-                in_agents = False
+                current_section = None
+                
                 for line in lines:
                     line = line.strip()
-                    if line == "[wazuh_agents]":
-                        in_agents = True
+                    if not line or line.startswith('#'):
                         continue
-                    if line.startswith("[") and line != "[wazuh_agents]":
-                        in_agents = False
                     
-                    if in_agents and line and not line.startswith("#"):
-                        parts = line.split()
-                        ip = parts[0]
-                        user = "root"
-                        pw = ""
-                        for p in parts[1:]:
-                            if p.startswith("ansible_user="):
-                                user = p.split("=")[1]
-                            if p.startswith("ansible_ssh_pass="):
-                                pw = p.split("=")[1]
+                    if line.startswith('['):
+                        current_section = line.strip('[]')
+                        continue
+                    
+                    parts = line.split()
+                    if not parts:
+                        continue
+
+                    # Parse common ansible vars
+                    ip = parts[0]
+                    user = "root"
+                    pw = ""
+                    
+                    for p in parts[1:]:
+                        if p.startswith("ansible_user="):
+                            user = p.split("=", 1)[1]
+                        elif p.startswith("ansible_ssh_pass=") or p.startswith("ansible_password="):
+                            pw = p.split("=", 1)[1]
+
+                    if current_section in ['agents', 'wazuh_agents']:
                         existing_agents.append({'ip': ip, 'user': user, 'password': pw})
+                    elif current_section == 'security_server':
+                        existing_manager['user'] = user
+                        existing_manager['password'] = pw
 
             if count > 0:
                 agent_inputs = []
@@ -126,8 +139,8 @@ def show_configuration():
                     ui.separator().classes('my-4 bg-white/10')
                     
                     # Manager Credentials
-                    ex_mgr_user = "root"
-                    ex_mgr_pw = ""
+                    ex_mgr_user = existing_manager['user']
+                    ex_mgr_pw = existing_manager['password']
                     # Quick parse for manager (simplified)
                     if HOSTS_INI_FILE.exists():
                         pass # Reusing logic from Streamlit or implementing fully? 

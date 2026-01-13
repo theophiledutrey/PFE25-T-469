@@ -3,7 +3,7 @@ import os
 import asyncio
 from pathlib import Path
 from manager.core import ANSIBLE_DIR, HOSTS_INI_FILE, load_current_config, update_yaml_config_from_schema
-from manager.ui_utils import page_header, card_style, async_run_command
+from manager.ui_utils import page_header, card_style, async_run_command, async_run_ansible_playbook
 
 def show_deploy():
     page_header("Deploy & Manage", "Execute playbooks and manage lifecycle")
@@ -47,55 +47,101 @@ def show_deploy():
                             
                     ui.button("Save Role Selection", on_click=save_roles).classes('mt-4 bg-slate-700')
 
+                # Target Selection
+                with ui.column().classes(card_style() + ' w-full'):
+                    ui.label("Deployment Scope").classes('text-xl font-bold text-slate-200 mb-4')
+                    
+                    target_scope = ui.radio(['All Infrastructure', 'Manager Only', 'Specific Agent'], value='All Infrastructure').classes('text-slate-300').props('inline')
+                    
+                    # Parse agents for dropdown
+                    agent_options = []
+                    if HOSTS_INI_FILE.exists():
+                        content = HOSTS_INI_FILE.read_text()
+                        for line in content.splitlines():
+                            line = line.strip()
+                            if line and not line.startswith('#') and not line.startswith('['):
+                                parts = line.split()
+                                if parts:
+                                    # Very basic check to exclude manager if possible, or just list all IPs
+                                    # Better: check if it was under [agents]
+                                    pass
+                        
+                        # Re-implementing a quick parser strictly for agents to populate dropdown
+                        # We can reuse logic from dashboard or config if we refactor, but for now inline is safe
+                        current_section = None
+                        for line in content.splitlines():
+                            line = line.strip()
+                            if line.startswith('['):
+                                current_section = line.strip('[]')
+                                continue
+                            
+                            if current_section in ['agents', 'wazuh_agents'] and line and not line.startswith('#'):
+                                parts = line.split()
+                                if parts:
+                                    agent_options.append(parts[0])
+
+                    agent_select = ui.select(agent_options, label="Select Agent").classes('w-full text-slate-300')
+                    agent_select.bind_visibility_from(target_scope, 'value', value='Specific Agent')
+
                 # Deployment Action
                 with ui.column().classes(card_style() + ' w-full'):
                     btn_deploy = ui.button("🚀 Start Deployment", on_click=lambda: run_deployment()).classes('bg-indigo-600 w-full py-4 text-lg')
+                    credentials_container = ui.column().classes('w-full mt-4 hidden')
                     deploy_log = ui.log().classes('w-full h-64 bg-slate-900 font-mono text-xs p-4 rounded-xl border border-white/10 mt-4')
 
-                    credentials_container = ui.column().classes('w-full mt-4 hidden')
+                    results_container = ui.column().classes('w-full mt-4')
 
             async def run_deployment():
                 deploy_log.clear()
-                credentials_container.classes('hidden')
+                credentials_container.classes(add='hidden')
                 credentials_container.clear()
+                results_container.clear()
                 btn_deploy.disable()
+                
+
                 
                 playbook = ANSIBLE_DIR / "playbooks" / "experimental.yml"
                 inventory = HOSTS_INI_FILE
-                cmd = f"ansible-playbook {playbook} -i {inventory}"
                 
-                deploy_log.push("Starting Ansible Playbook...")
-                
-                # We need to capture output to parse password, so let's do a custom run or just reuse async_run
-                # For simplicity, we use async_run but we might need a way to capture the text if we want to parse it *after* 
-                # or during. ui.log stores text, but accessing it programmatically isn't direct.
-                # Let's use a capture list.
-                captured_lines = []
-                
-                process = await asyncio.create_subprocess_shell(
-                    cmd,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.STDOUT,
-                    executable='/bin/zsh'
-                )
+                # Determine limit
+                limit_arg = ""
+                scope = target_scope.value
+                if scope == 'Manager Only':
+                    limit_arg = "-l security_server"
+                elif scope == 'Specific Agent':
+                    if agent_select.value:
+                        limit_arg = f"-l {agent_select.value}"
+                    else:
+                        ui.notify("Please select an agent", type='warning')
+                        btn_deploy.enable()
+                        return
 
-                while True:
-                    line = await process.stdout.readline()
-                    if not line:
-                        break
-                    text = line.decode().strip()
-                    deploy_log.push(text)
-                    captured_lines.append(text)
-
-                await process.wait()
+                cmd = f"ansible-playbook {playbook} -i {inventory} {limit_arg}"
                 
-                if process.returncode == 0:
-                    ui.notify("Deployment Successful!", type='positive')
-                    # Parse output
-                    full_output = "\n".join(captured_lines)
-                    check_credentials(full_output)
-                else:
-                    ui.notify(f"Deployment failed (Exit {process.returncode})", type='negative')
+                ret_code, full_output, task_results = await async_run_ansible_playbook(cmd, deploy_log)
+
+                # Render Results Table
+                if task_results:
+                     with results_container:
+                        ui.label("Task Execution Summary").classes('text-lg font-bold text-slate-200 mb-2')
+                        
+                        cols = [
+                            {'name': 'host', 'label': 'Host', 'field': 'host', 'align': 'left'},
+                            {'name': 'task', 'label': 'Task', 'field': 'task', 'align': 'left'},
+                            {'name': 'status', 'label': 'Status', 'field': 'status', 'align': 'left'},
+                        ]
+                        
+                        table = ui.table(columns=cols, rows=task_results, row_key='task').classes('w-full')
+                        table.add_slot('body-cell-status', '''
+                            <q-td :props="props">
+                                <q-badge :color="props.value === 'ok' ? 'green' : (props.value === 'changed' ? 'amber' : 'red')" text-color="black">
+                                    {{ props.value }}
+                                </q-badge>
+                            </q-td>
+                        ''')
+
+                if ret_code == 0:
+                     check_credentials(full_output)
                 
                 btn_deploy.enable()
 
@@ -151,7 +197,20 @@ def show_deploy():
                     cleanup_log.clear()
                     playbook = ANSIBLE_DIR / "playbooks" / "experimental.yml"
                     inventory = HOSTS_INI_FILE
+                    
+                    # Reuse scope for cleanup? Or simplified cleanup? 
+                    # User likely wants to cleanup everything usually, but granular cleanup is powerful.
+                    # Let's keep cleanup global for "Emergency Cleanup" tab to avoid confusion, 
+                    # or better: duplicate the scope selector here if requested. 
+                    # For now, keeping it global as per "Emergency Cleanup" implication, 
+                    # OR we can respect the main tab's selection if the user wants?
+                    # The prompt asked for "full clean... however... add just one agent... without resetting all".
+                    # So granular deploy implies granular cleanup is handled by the deploy process itself (roles contain cleanup).
+                    # This specific "Emergency Cleanup" tab might be better left as a nuclear option for now, 
+                    # or we can add a simple confirmation/target.
+                    # Let's leave this as global nuclear option for safety/simplicity unless specific request.
+                    
                     cmd = f"ansible-playbook {playbook} -i {inventory} -e '{{\"enabled_roles\": [\"cleanup\"]}}'"
                     await async_run_command(cmd, cleanup_log)
 
-                ui.button("🔥 Run Cleanup", on_click=lambda: run_cleanup()).classes('bg-rose-600 w-full py-4 text-lg')
+                ui.button("🔥 Run Cleanup (ALL HOSTS)", on_click=lambda: run_cleanup()).classes('bg-rose-600 w-full py-4 text-lg')

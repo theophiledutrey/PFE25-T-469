@@ -17,8 +17,34 @@
 
 
 - name: Install Wazuh Dashboard
-  command: ./wazuh-install.sh --wazuh-dashboard {{ wazuh_dashboard_node_name | default('dashboard') }} --overwrite
-  args:
-    chdir: /opt/wazuh-install
-    creates: /etc/wazuh-dashboard/opensearch_dashboards.yml
-  ignore_errors: "{{ ansible_check_mode }}"
+  block:
+    - name: Run Wazuh Dashboard installation script
+      command: ./wazuh-install.sh --wazuh-dashboard {{ wazuh_dashboard_node_name | default('dashboard') }} --overwrite
+      args:
+        chdir: /opt/wazuh-install
+        creates: /etc/wazuh-dashboard/opensearch_dashboards.yml
+      
+  rescue:
+    - name: Read Wazuh installation log
+      slurp:
+        src: /var/log/wazuh-install.log
+      register: installation_log
+      ignore_errors: true
+
+    - name: Ensure logs directory exists
+      file:
+        path: "{{ playbook_dir }}/../logs"
+        state: directory
+      delegate_to: localhost
+      run_once: true
+
+    - name: Save Wazuh installation log to controller
+      copy:
+        content: "{{ installation_log['content'] | b64decode }}"
+        dest: "{{ playbook_dir }}/../logs/wazuh_dashboard_error_{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}.log"
+      delegate_to: localhost
+      when: installation_log is success
+
+    - name: Fail task after saving log
+      fail:
+        msg: "Wazuh Dashboard installation failed. Log saved to logs/wazuh_dashboard_error_....log"

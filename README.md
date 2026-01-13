@@ -167,16 +167,28 @@ Ansible
 - Schémas d’architecture
 - Documentation utilisateur à destination d’une PME
 
-## 7. How to Run (Manager)
+## 7. How to Run
 
-To verify the installation and use the graphical dashboard:
+To run the application, you can use the installed `reef` command.
 
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+1.  **Install the package (and dependencies):**
+    ```bash
+    pip install -e .
+    ```
 
-# 2. Start the application
-python main.py
-```
+2.  **Usage:**
+    *   **Graphical Interface (Web Dashboard):**
+        ```bash
+        reef
+        ```
+        This will start the web server and open the dashboard in your browser (default: `http://localhost:8080`).
 
-Then visit `http://localhost:8080` in your browser.
+    *   **Command Line Interface (CLI):**
+        ```bash
+        reef --cli
+        # or verify help
+        reef --help
+        ```
+        The CLI allows you to configure, deploy, and manage the infrastructure directly from the terminal.
+
+

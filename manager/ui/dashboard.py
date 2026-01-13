@@ -5,13 +5,6 @@ from manager.ui_utils import page_header, card_style, status_badge
 def show_dashboard():
     page_header("Dashboard", "Security Infrastructure Manager")
 
-    ui.markdown("""
-    <p style="color: #94a3b8; font-size: 1.1em; line-height: 1.6; margin-top: -10px;">
-    REEF simplifies the deployment of your security stack. 
-    Automate SIEM, IDS, and network defenses with a unified management interface.
-    </p>
-    """).classes('mb-8')
-
     if not GROUP_VARS_FILE.exists():
         with ui.card().classes('w-full bg-amber-500/10 border-amber-500/20'):
             with ui.row().classes('items-center gap-4'):
@@ -43,13 +36,73 @@ def show_dashboard():
                     agent_ips.append(parts[0])
 
     agent_count = len(agent_ips)
+    
+    # Async Healthcheck
+    import httpx
+    
+    async def check_wazuh(label_status, spinner):
+        try:
+            url = f"https://{manager_ip}"
+            async with httpx.AsyncClient(verify=False, timeout=2.0) as client:
+                response = await client.get(url)
+                # Any response suggests it's up, even 401/403/200
+                if response.status_code in [200, 401, 403, 302]:
+                     spinner.visible = False
+                     label_status.classes(remove='text-slate-500', add='text-emerald-400')
+                     label_status.text = "Online"
+                else:
+                     spinner.visible = False
+                     label_status.classes(remove='text-slate-500', add='text-amber-500')
+                     label_status.text = f"Status {response.status_code}"
+        except Exception as e:
+            spinner.visible = False
+            label_status.classes(remove='text-slate-500', add='text-rose-500')
+            label_status.text = "Unreachable"
 
-    # Grid Layout
+    import asyncio
+
+    async def check_ping(ip, status_icon):
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                'ping', '-c', '1', '-W', '1000', ip,
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL
+            )
+            await proc.wait()
+             
+            if proc.returncode == 0:
+                status_icon.classes(remove='text-slate-500', add='text-emerald-500')
+                status_icon.props('icon=check_circle')
+            else:
+                 status_icon.classes(remove='text-slate-500', add='text-rose-500')
+                 status_icon.props('icon=cancel')
+        except Exception:
+             status_icon.classes(remove='text-slate-500', add='text-rose-500')
+             status_icon.props('icon=cancel')
+
+    wazuh_refs = {}
+    ping_checks = []
+
+    async def refresh_infrastructure():
+        if 'label' in wazuh_refs and 'spinner' in wazuh_refs:
+            wazuh_refs['label'].text = 'Checking...'
+            wazuh_refs['label'].classes(remove='text-emerald-400 text-amber-500 text-rose-500', add='text-slate-500')
+            wazuh_refs['spinner'].visible = True
+            asyncio.create_task(check_wazuh(wazuh_refs['label'], wazuh_refs['spinner']))
+        
+        for ip, icon in ping_checks:
+            icon.classes(remove='text-emerald-500 text-rose-500', add='text-slate-500')
+            icon.props('icon=circle')
+            asyncio.create_task(check_ping(ip, icon))
+
+    # ... Grid Layout ...
     with ui.grid(columns=2).classes('w-full gap-6'):
         
         # Core Infrastructure Card
         with ui.column().classes(card_style()):
-            ui.label('Core Infrastructure').classes('text-slate-400 font-bold mb-4 border-b border-white/10 pb-2 w-full')
+            with ui.row().classes('w-full justify-between items-center mb-4 border-b border-white/10 pb-2'):
+                ui.label('Core Infrastructure').classes('text-slate-400 font-bold')
+                ui.button(on_click=refresh_infrastructure).props('icon=refresh flat dense round size=sm').classes('text-slate-500 hover:text-white')
             
             with ui.column().classes('gap-6 w-full'):
                 
@@ -63,6 +116,22 @@ def show_dashboard():
                         ui.label('MANAGER NODE').classes('text-xs text-slate-500 font-bold')
                         ui.label(manager_ip).classes('font-mono text-slate-300 bg-white/5 px-2 py-1 rounded')
 
+                # Wazuh Dashboard Check
+                with ui.row().classes('w-full bg-sky-500/5 border border-sky-500/5 rounded-xl p-4 items-center gap-4 justify-between'):
+                    with ui.row().classes('items-center gap-4'):
+                        with ui.element('div').classes('flex items-center justify-center w-12 h-12 rounded-lg bg-sky-500 text-white text-xl'):
+                            ui.icon('security')
+                        
+                        with ui.column().classes('gap-0'):
+                            ui.label('Wazuh Dashboard').classes('text-slate-200 font-bold text-lg')
+                            with ui.row().classes('items-center gap-2'):
+                                status_label = ui.label('Checking...').classes('text-xs text-slate-500')
+                                spinner = ui.spinner('dots', size='xs').classes('text-slate-500')
+                                wazuh_refs['label'] = status_label
+                                wazuh_refs['spinner'] = spinner
+
+                    ui.button('Open').props(f'flat dense size=sm href=https://{manager_ip} target=_blank').classes('text-sky-400')
+
                 # Agents Box
                 with ui.row().classes('w-full bg-sky-500/5 border border-sky-500/10 rounded-xl p-4 items-center gap-4'):
                     with ui.element('div').classes('flex items-center justify-center w-12 h-12 rounded-lg bg-sky-500 text-white text-2xl'):
@@ -73,9 +142,17 @@ def show_dashboard():
                         ui.label('Inventory Endpoints').classes('text-slate-400 text-sm')
                 
                 if agent_ips:
-                    with ui.scroll_area().classes('w-full h-24 gap-1 grid grid-cols-2'):
+                    with ui.scroll_area().classes('w-full h-24 gap-1'):
                          for ip in agent_ips:
-                             ui.label(f'• {ip}').classes('font-mono text-slate-500 text-xs')
+                             with ui.row().classes('items-center gap-2'):
+                                 # We start with a spinner or generic icon
+                                 status_icon = ui.icon('circle', size='xs').classes('text-slate-500')
+                                 ping_checks.append((ip, status_icon))
+                                 ui.label(f'{ip}').classes('font-mono text-slate-400 text-xs')
+                                 # Trigger separate check for each
+                                 ui.timer(0.1, lambda i=ip, s=status_icon: check_ping(i, s), once=True)
+                else:
+                    ui.label('No agents found.').classes('col-span-2 text-slate-500')
 
 
         # Active Roles Card
@@ -104,3 +181,6 @@ def show_dashboard():
                     with ui.column().classes('gap-0'):
                         ui.label('Inventory').classes('text-xs text-slate-400')
                         ui.label('hosts.ini').classes('text-sm text-slate-300')
+
+    # Trigger check
+    ui.timer(0.1, lambda: check_wazuh(status_label, spinner), once=True)
