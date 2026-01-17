@@ -36,6 +36,25 @@ def show_dashboard():
                     agent_ips.append(parts[0])
 
     agent_count = len(agent_ips)
+
+    manager_ips = []
+    if HOSTS_INI_FILE.exists():
+        content = HOSTS_INI_FILE.read_text()
+        lines = content.splitlines()
+        in_managers = False
+        for line in lines:
+            if line.strip() == "[security_server]" or line.strip() == "[wazuh_manager]":
+                in_managers = True
+                continue
+            if line.strip().startswith("[") and line.strip() not in ["[security_server]", "[wazuh_manager]"]:
+                in_managers = False
+            
+            if in_managers and line.strip() and not line.strip().startswith("#"):
+                parts = line.strip().split()
+                if parts:
+                    manager_ips.append(parts[0])
+
+    manager_count = len(manager_ips)
     
     # Async Healthcheck
     import httpx
@@ -112,9 +131,9 @@ def show_dashboard():
                         ui.label('SYSTEM STATUS').classes('text-xs text-slate-500 font-bold')
                         status_badge(HOSTS_INI_FILE.exists(), "Active", "Pending Setup")
                     
-                    with ui.column().classes('gap-0 items-end'):
-                        ui.label('MANAGER NODE').classes('text-xs text-slate-500 font-bold')
-                        ui.label(manager_ip).classes('font-mono text-slate-300 bg-white/5 px-2 py-1 rounded')
+                    #with ui.column().classes('gap-0 items-end'):
+                        #ui.label('MANAGER NODE').classes('text-xs text-slate-500 font-bold')
+                        #ui.label(manager_ip).classes('font-mono text-slate-300 bg-white/5 px-2 py-1 rounded')
 
                 # Wazuh Dashboard Check
                 with ui.row().classes('w-full bg-sky-500/5 border border-sky-500/5 rounded-xl p-4 items-center gap-4 justify-between'):
@@ -131,6 +150,28 @@ def show_dashboard():
                                 wazuh_refs['spinner'] = spinner
 
                     ui.button('Open').props(f'flat dense size=sm href=https://{manager_ip} target=_blank').classes('text-sky-400')
+
+                # Managers Box
+                with ui.row().classes('w-full bg-sky-500/5 border border-sky-500/10 rounded-xl p-4 items-center gap-4'):
+                    with ui.element('div').classes('flex items-center justify-center w-12 h-12 rounded-lg bg-sky-500 text-white text-2xl'):
+                        ui.icon('monitor')
+                    
+                    with ui.column().classes('gap-0'):
+                        ui.label(f'{manager_count} Managers').classes('text-slate-200 font-bold text-lg')
+                        ui.label('Inventory Endpoints').classes('text-slate-400 text-sm')
+                
+                if manager_ips:
+                    with ui.scroll_area().classes('w-full h-24 gap-1'):
+                         for ip in manager_ips:
+                             with ui.row().classes('items-center gap-2'):
+                                 # We start with a spinner or generic icon
+                                 status_icon = ui.icon('circle', size='xs').classes('text-slate-500')
+                                 ping_checks.append((ip, status_icon))
+                                 ui.label(f'{ip}').classes('font-mono text-slate-400 text-xs')
+                                 # Trigger separate check for each
+                                 ui.timer(0.1, lambda i=ip, s=status_icon: check_ping(i, s), once=True)
+                else:
+                    ui.label('No managers found.').classes('col-span-2 text-slate-500')
 
                 # Agents Box
                 with ui.row().classes('w-full bg-sky-500/5 border border-sky-500/10 rounded-xl p-4 items-center gap-4'):
@@ -153,6 +194,8 @@ def show_dashboard():
                                  ui.timer(0.1, lambda i=ip, s=status_icon: check_ping(i, s), once=True)
                 else:
                     ui.label('No agents found.').classes('col-span-2 text-slate-500')
+
+                
 
 
         # Active Roles Card

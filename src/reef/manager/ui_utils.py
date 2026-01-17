@@ -1,7 +1,8 @@
 from nicegui import ui
 import asyncio
 import subprocess
-
+import os
+from reef.manager.core import BASE_DIR, ANSIBLE_DIR
 
 class AppState:
     running_process: str = None
@@ -34,6 +35,12 @@ def page_header(title: str, subtitle: str = None):
 def card_style():
     return 'p-6 rounded-2xl bg-white/5 border border-white/10 shadow-lg backdrop-blur-md transition-all hover:-translate-y-1 hover:shadow-2xl'
 
+def _get_ansible_env():
+    env = os.environ.copy()
+    env['ANSIBLE_CONFIG'] = str(BASE_DIR / "ansible.cfg")
+    env['ANSIBLE_ROLES_PATH'] = str(ANSIBLE_DIR / "roles")
+    return env
+
 async def async_run_command(command: str, log_element: ui.log, on_complete=None):
     """
     Asynchronously run a shell command and stream output to a UI log element.
@@ -49,7 +56,9 @@ async def async_run_command(command: str, log_element: ui.log, on_complete=None)
             command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT,
-            executable='/bin/zsh'
+            executable='/bin/zsh',
+            cwd=str(BASE_DIR),
+            env=_get_ansible_env()
         )
 
         while True:
@@ -99,7 +108,9 @@ async def async_run_ansible_playbook(command: str, log_element: ui.log):
             command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT,
-            executable='/bin/zsh'
+            executable='/bin/zsh',
+            cwd=str(BASE_DIR),
+            env=_get_ansible_env()
         )
 
         current_task = "Starting"
