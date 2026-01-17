@@ -849,7 +849,7 @@ def show_post_deployment_msg():
         except:
             pass
 
-    password_file = Path.home() / "Downloads" / "wazuh-admin-password.txt"
+    password_file = ANSIBLE_DIR / "wazuh-admin-password.txt"
     password = "See wazuh-admin-password.txt"
     
     if password_file.exists():
@@ -861,7 +861,7 @@ def show_post_deployment_msg():
             if match:
                 password = match.group(1)
             else:
-                password = "Password not found (check format in Downloads/wazuh-admin-password.txt)"
+                password = "Password not found (check format in ansible/wazuh-admin-password.txt)"
         except Exception as e:
             password = f"Error reading file: {e}"
             
@@ -870,7 +870,7 @@ def show_post_deployment_msg():
         f"Access Wazuh Dashboard at: [link=https://{manager_ip}/app/login?]https://{manager_ip}/app/login?[/link]\n"
         f"User: [bold]admin[/bold]\n"
         f"Password: [bold]{password}[/bold]",
-        subtitle=f"(Information has been saved to [blue]~/Downloads/wazuh-admin-password.txt[/blue])",
+        subtitle=f"(Information has been saved to [blue]{ANSIBLE_DIR}/wazuh-admin-password.txt[/blue])",
         title="Operation Summary",
         border_style="green"
     ))# https://192.168.64.12/app/login?next=%2Fapp%2Fdashboard
