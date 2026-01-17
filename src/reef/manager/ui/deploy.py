@@ -151,7 +151,7 @@ def show_deploy():
                 manager_ip = config.get('wazuh_manager_ip', '<manager_ip>')
                 
                 password = None
-                pass_file = Path(os.environ.get('HOME')) / 'Downloads' / 'wazuh-admin-password.txt'
+                pass_file = ANSIBLE_DIR / 'wazuh-admin-password.txt'
                 
                 import re
                 match = re.search(r'"admin",\s+"([^"]+)"', output)
