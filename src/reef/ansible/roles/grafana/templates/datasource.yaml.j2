@@ -3,7 +3,7 @@ apiVersion: 1
 datasources:
   - name: Wazuh
     type: grafana-opensearch-datasource
-    uid: afaj5psa8s6iod
+    uid: wazuh-alerts
     url: https://{{ wazuh_manager_ip | default('127.0.0.1') }}:9200
     access: proxy
     basicAuth: true
@@ -15,10 +15,13 @@ datasources:
       database: "wazuh-alerts-*"
       indexName: "wazuh-alerts-*"
       timeField: "timestamp"
-      flavor: "opensearch"
+      flavor: "Opensearch"
       version: "2.16.0"
       pplEnabled: true
       tlsSkipVerify: true
+      logMessageField: "rule.description"
+      logLevelField: "rule.level"
+
   - name: Wazuh Monitoring
     type: grafana-opensearch-datasource
     uid: wazuh-monitoring
@@ -33,10 +36,13 @@ datasources:
       database: "wazuh-monitoring-*"
       indexName: "wazuh-monitoring-*"
       timeField: "timestamp"
-      flavor: "opensearch"
+      flavor: "Opensearch"
       version: "2.16.0"
       pplEnabled: true
       tlsSkipVerify: true
+      logMessageField: "name"
+      logLevelField: "status"
+
   - name: Wazuh Vulnerabilities
     type: grafana-opensearch-datasource
     uid: wazuh-vulnerabilities
@@ -50,11 +56,14 @@ datasources:
     jsonData:
       database: "wazuh-states-vulnerabilities-*"
       indexName: "wazuh-states-vulnerabilities-*"
-      timeField: "timestamp"
-      flavor: "opensearch"
+      timeField: "vulnerability.detected_at"
+      flavor: "Opensearch"
       version: "2.16.0"
       pplEnabled: true
       tlsSkipVerify: true
+      logMessageField: "vulnerability.id"
+      logLevelField: "vulnerability.severity"
+
   - name: Wazuh Inventory Ports
     type: grafana-opensearch-datasource
     uid: wazuh-inventory-ports
@@ -69,10 +78,13 @@ datasources:
       database: "wazuh-states-inventory-ports-*"
       indexName: "wazuh-states-inventory-ports-*"
       timeField: "timestamp"
-      flavor: "opensearch"
+      flavor: "Opensearch"
       version: "2.16.0"
       pplEnabled: true
       tlsSkipVerify: true
+      logMessageField: "rule.description"
+      logLevelField: "rule.level"
+
   - name: Wazuh Inventory Packages
     type: grafana-opensearch-datasource
     uid: wazuh-inventory-packages
@@ -87,10 +99,13 @@ datasources:
       database: "wazuh-states-inventory-packages-*"
       indexName: "wazuh-states-inventory-packages-*"
       timeField: "timestamp"
-      flavor: "opensearch"
+      flavor: "Opensearch"
       version: "2.16.0"
       pplEnabled: true
       tlsSkipVerify: true
+      logMessageField: "rule.description"
+      logLevelField: "rule.level"
+
   - name: Wazuh Inventory System
     type: grafana-opensearch-datasource
     uid: wazuh-inventory-system
@@ -105,10 +120,13 @@ datasources:
       database: "wazuh-states-inventory-system-*"
       indexName: "wazuh-states-inventory-system-*"
       timeField: "timestamp"
-      flavor: "opensearch"
+      flavor: "Opensearch"
       version: "2.16.0"
       pplEnabled: true
       tlsSkipVerify: true
+      logMessageField: "rule.description"
+      logLevelField: "rule.level"
+
   - name: Wazuh Inventory Users
     type: grafana-opensearch-datasource
     uid: wazuh-inventory-users
@@ -123,7 +141,9 @@ datasources:
       database: "wazuh-states-inventory-users-*"
       indexName: "wazuh-states-inventory-users-*"
       timeField: "timestamp"
-      flavor: "opensearch"
+      flavor: "Opensearch"
       version: "2.16.0"
       pplEnabled: true
       tlsSkipVerify: true
+      logMessageField: "rule.description"
+      logLevelField: "rule.level"

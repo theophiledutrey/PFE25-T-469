@@ -35,7 +35,8 @@ def show_configuration():
         else:
             if update_yaml_config_from_schema(final_data):
                 ui.notify("Configuration saved successfully!", type='positive')
-                # Optional: refresh page or state if needed
+                # Refresh page to update the Agent Inventory section based on new config
+                ui.timer(1.0, lambda: ui.run_javascript('window.location.reload()'), once=True)
 
     # --- Main Config Form ---
     with ui.column().classes('w-full gap-8'):

@@ -5,6 +5,7 @@
   check that agents are comm correctly even if added after manager
   passwords are in clear
   add custom rules tab
+  add ruleset
 
    2. Adopt a GitOps Flow:
        * Concept: Use Git as the central source of truth for your server configurations. Instead of a user running the pme_manager and immediately

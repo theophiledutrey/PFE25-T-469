@@ -38,7 +38,7 @@
     {
       "datasource": {
         "type": "grafana-opensearch-datasource",
-        "uid": "afaj5psa8s6iod"
+        "uid": "wazuh-alerts"
       },
       "description": "Latest Alerts in the past 24H",
       "fieldConfig": {
@@ -196,7 +196,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "metrics": [
@@ -227,7 +227,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "hide": false,
@@ -259,7 +259,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "hide": false,
@@ -291,7 +291,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "hide": false,
@@ -323,7 +323,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "hide": false,
@@ -347,7 +347,7 @@
     {
       "datasource": {
         "type": "grafana-opensearch-datasource",
-        "uid": "afaj5psa8s6iod"
+        "uid": "wazuh-alerts"
       },
       "fieldConfig": {
         "defaults": {
@@ -407,7 +407,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "metrics": [
             {
@@ -427,7 +427,7 @@
     {
       "datasource": {
         "type": "grafana-opensearch-datasource",
-        "uid": "afaj5psa8s6iod"
+        "uid": "wazuh-alerts"
       },
       "description": "Vulnerability LVL",
       "fieldConfig": {
@@ -591,13 +591,9 @@
       "id": 17,
       "options": {
         "legend": {
-          "calcs": [
-            "min",
-            "max",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "right",
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
@@ -625,7 +621,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "metrics": [
@@ -656,7 +652,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "hide": false,
@@ -688,7 +684,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "hide": false,
@@ -720,7 +716,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "hide": false,
@@ -752,7 +748,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "hide": false,
@@ -775,7 +771,7 @@
     {
       "datasource": {
         "type": "grafana-opensearch-datasource",
-        "uid": "afaj5psa8s6iod"
+        "uid": "wazuh-alerts"
       },
       "description": "Rules Groups",
       "fieldConfig": {
@@ -924,7 +920,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "format": "table",
           "luceneQueryType": "Metric",
@@ -947,7 +943,7 @@
     {
       "datasource": {
         "type": "grafana-opensearch-datasource",
-        "uid": "afaj5psa8s6iod"
+        "uid": "wazuh-alerts"
       },
       "fieldConfig": {
         "defaults": {
@@ -1078,7 +1074,7 @@
           ],
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "metrics": [
             {
@@ -1107,7 +1103,7 @@
         {
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "description": "Shows security alerts mapped to NIST standards (government security rules), highlighting areas like Login Security, System Monitoring, and Network Defense.",
           "fieldConfig": {
@@ -1334,7 +1330,7 @@
               ],
               "datasource": {
                 "type": "grafana-opensearch-datasource",
-                "uid": "afaj5psa8s6iod"
+                "uid": "wazuh-alerts"
               },
               "format": "table",
               "luceneQueryType": "Metric",
@@ -1357,7 +1353,7 @@
         {
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "description": "Shows security alerts related to Data Privacy laws (GDPR) to highlight potential issues with personal data protection.",
           "fieldConfig": {
@@ -1512,7 +1508,7 @@
               ],
               "datasource": {
                 "type": "grafana-opensearch-datasource",
-                "uid": "afaj5psa8s6iod"
+                "uid": "wazuh-alerts"
               },
               "metrics": [
                 {
@@ -1545,7 +1541,7 @@
         {
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "description": "Categorizes threats by 'hacker tactics' (MITRE ATT&CK) to show what types of attacks are occurring (e.g. stealing credentials vs deleting files).",
           "fieldConfig": {
@@ -1614,7 +1610,7 @@
               ],
               "datasource": {
                 "type": "grafana-opensearch-datasource",
-                "uid": "afaj5psa8s6iod"
+                "uid": "wazuh-alerts"
               },
               "metrics": [
                 {
@@ -1633,7 +1629,7 @@
         {
           "datasource": {
             "type": "grafana-opensearch-datasource",
-            "uid": "afaj5psa8s6iod"
+            "uid": "wazuh-alerts"
           },
           "description": "Mitre Tactic",
           "fieldConfig": {
@@ -1705,7 +1701,7 @@
               ],
               "datasource": {
                 "type": "grafana-opensearch-datasource",
-                "uid": "afaj5psa8s6iod"
+                "uid": "wazuh-alerts"
               },
               "format": "table",
               "luceneQueryType": "Metric",
@@ -1735,7 +1731,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 22
       },
       "id": 300,
       "panels": [],
@@ -1745,21 +1741,86 @@
     {
       "datasource": {
         "type": "grafana-opensearch-datasource",
-        "uid": "afaj5psa8s6iod"
+        "uid": "wazuh-alerts"
       },
       "description": "Critical. This is the heartbeat of your SOC. It contains all rule-based detections, including your Suricata logs.",
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 36
+        "y": 23
       },
       "id": 301,
-      "options": {},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "bucketAggs": [
@@ -1815,7 +1876,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 36
+        "y": 23
       },
       "id": 302,
       "options": {
@@ -1867,17 +1928,46 @@
       },
       "description": "High Value. This provides a 'Current State' view of your network's risk. Essential for prioritizing patching.",
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 36
+        "y": 23
       },
       "id": 303,
-      "options": {},
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "bucketAggs": [
@@ -1912,7 +2002,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 31
       },
       "id": 400,
       "panels": [],
@@ -1926,17 +2016,46 @@
       },
       "description": "Excellent for spotting unauthorized open ports (e.g., SSH, RDP).",
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 45
+        "y": 32
       },
       "id": 401,
-      "options": {},
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "bucketAggs": [
@@ -1975,17 +2094,46 @@
       },
       "description": "Use this to see if unauthorized software is being installed.",
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 45
+        "y": 32
       },
       "id": 402,
-      "options": {},
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "bucketAggs": [
@@ -2024,17 +2172,46 @@
       },
       "description": "Useful for basic asset identification (Hostname, OS, Architecture).",
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 45
+        "y": 32
       },
       "id": 403,
-      "options": {},
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "bucketAggs": [
@@ -2072,7 +2249,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 40
       },
       "id": 500,
       "panels": [],
@@ -2086,17 +2263,46 @@
       },
       "description": "Tracks who has local admin rights or which accounts are active.",
       "fieldConfig": {
-        "defaults": {},
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 54
+        "y": 41
       },
       "id": 501,
-      "options": {},
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
       "targets": [
         {
           "bucketAggs": [
@@ -2140,7 +2346,7 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
