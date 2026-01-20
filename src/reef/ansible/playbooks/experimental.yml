@@ -41,7 +41,8 @@
 
     - name: Display enabled roles
       debug:
-        msg: "Installing roles: {{ enabled_roles | intersect(['cleanup', 'common', 'wazuh-indexer', 'wazuh-server', 'wazuh-dashboard', 'ufw', 'fail2ban']) | join(', ') }}"
+        msg: "Installing roles: {{ enabled_roles | intersect(['cleanup', 'common', 'wazuh-indexer', 'wazuh-server', 'wazuh-dashboard', 'grafana', 'ufw', 'fail2ban']) | join(', ') }}"
+
 
     - name: Apply enabled roles in order
       include_role:
@@ -52,6 +53,7 @@
         - wazuh-indexer
         - wazuh-server
         - wazuh-dashboard
+        - grafana
         - ufw
         - fail2ban
       loop_control:

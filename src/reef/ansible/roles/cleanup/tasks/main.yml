@@ -60,6 +60,8 @@
     - filebeat
     - wazuh-agent
     - wazuh-agent
+    - grafana-server
+
   ignore_errors: yes
   failed_when: false
 
@@ -79,6 +81,9 @@
       - filebeat
       - wazuh-dashboard
       - wazuh-agent
+      - grafana-enterprise
+      - grafana
+
     state: absent
     purge: yes
 
@@ -119,6 +124,8 @@
     - /usr/share/wazuh-dashboard
     - /etc/apt/sources.list.d/wazuh.list
     - /usr/share/keyrings/wazuh.gpg
+    - /etc/apt/sources.list.d/grafana.list
+
 
 - name: Remove temporary installation files
   file:

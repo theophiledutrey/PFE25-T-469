@@ -1,0 +1,2151 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Grafana Security Dashboard",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 206,
+      "panels": [],
+      "title": "Agents and General Activity Levels",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "afaj5psa8s6iod"
+      },
+      "description": "Latest Alerts in the past 24H",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "fieldMinMax": false,
+          "mappings": [
+            {
+              "options": {
+                "LVL : 12 - 14": {
+                  "color": "dark-orange",
+                  "index": 1,
+                  "text": "LVL : 12 - 14"
+                },
+                "LVL : 15": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "LVL : 15"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CRITICAL"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HIGH"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MODERATE"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "MEDIUM"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LOW"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 18,
+        "x": 0,
+        "y": 1
+      },
+      "id": 207,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "alias": "CRITICAL",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:15",
+          "queryType": "lucene",
+          "refId": "LVL : 15",
+          "timeField": "timestamp"
+        },
+        {
+          "alias": "HIGH",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "hide": false,
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:[12 TO 14]",
+          "queryType": "lucene",
+          "refId": "B",
+          "timeField": "timestamp"
+        },
+        {
+          "alias": "MODERATE",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "hide": false,
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:[6 TO 11]",
+          "queryType": "lucene",
+          "refId": "E",
+          "timeField": "timestamp"
+        },
+        {
+          "alias": "MEDIUM",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "hide": false,
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:[4 TO 6]",
+          "queryType": "lucene",
+          "refId": "C",
+          "timeField": "timestamp"
+        },
+        {
+          "alias": "LOW",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "hide": false,
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:[1 TO 3]",
+          "queryType": "lucene",
+          "refId": "D",
+          "timeField": "timestamp"
+        }
+      ],
+      "title": "Latest Alerts Severity Levels",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "afaj5psa8s6iod"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 201,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "metrics": [
+            {
+              "field": "agent.id",
+              "id": "1",
+              "type": "cardinality"
+            }
+          ],
+          "query": "agent.id:*",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Agents Connected",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "afaj5psa8s6iod"
+      },
+      "description": "Vulnerability LVL",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "dark-red",
+            "mode": "palette-classic",
+            "seriesBy": "last"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 4,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 3,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": false,
+          "mappings": [
+            {
+              "options": {
+                "LVL : 12 - 14": {
+                  "color": "dark-orange",
+                  "index": 1,
+                  "text": "LVL : 12 - 14"
+                },
+                "LVL : 15": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "LVL : 15"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LVL : 15"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LVL :  12-14"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LVL :  6-11"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LVL :  4-6"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "LVL :  1-3"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 18,
+        "x": 0,
+        "y": 5
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "multi",
+          "sort": "asc"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "alias": "LVL : 15",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:15",
+          "queryType": "lucene",
+          "refId": "LVL : 15",
+          "timeField": "@timestamp"
+        },
+        {
+          "alias": "LVL :  12-14",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "hide": false,
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:[12 TO 14]",
+          "queryType": "lucene",
+          "refId": "B",
+          "timeField": "@timestamp"
+        },
+        {
+          "alias": "LVL :  6-11",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "hide": false,
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:[6 TO 11]",
+          "queryType": "lucene",
+          "refId": "E",
+          "timeField": "@timestamp"
+        },
+        {
+          "alias": "LVL :  4-6",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "hide": false,
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:[4 TO 6]",
+          "queryType": "lucene",
+          "refId": "C",
+          "timeField": "@timestamp"
+        },
+        {
+          "alias": "LVL :  1-3",
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "5",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "hide": false,
+          "metrics": [
+            {
+              "hide": false,
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:[1 TO 3]",
+          "queryType": "lucene",
+          "refId": "D",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Vulnerability LVL",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "afaj5psa8s6iod"
+      },
+      "description": "Rules Groups",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [
+            {
+              "options": {
+                "access_control": {
+                  "index": 15,
+                  "text": "Access Control Event"
+                },
+                "adduser": {
+                  "index": 13,
+                  "text": "User Management (Add User)"
+                },
+                "authentication_failed": {
+                  "index": 12,
+                  "text": "Failed Login"
+                },
+                "authentication_success": {
+                  "index": 11,
+                  "text": "Successful Login"
+                },
+                "config_changed": {
+                  "index": 10,
+                  "text": "Configuration Changes"
+                },
+                "dpkg": {
+                  "index": 9,
+                  "text": "Software Packages (dpkg)"
+                },
+                "invalid_login": {
+                  "index": 8,
+                  "text": "Invalid Login Attempt"
+                },
+                "local": {
+                  "index": 7,
+                  "text": "Local System Activity"
+                },
+                "ossec": {
+                  "index": 6,
+                  "text": "Wazuh Internal Events"
+                },
+                "pam": {
+                  "index": 5,
+                  "text": "Pluggable Auth Module"
+                },
+                "sca": {
+                  "index": 4,
+                  "text": "Security Configuration Assessment"
+                },
+                "sshd": {
+                  "index": 3,
+                  "text": "SSH Activity"
+                },
+                "sudo": {
+                  "index": 2,
+                  "text": "Privileged Commands (Sudo)"
+                },
+                "syscheck": {
+                  "index": 16,
+                  "text": "File Integrity Monitoring"
+                },
+                "syslog": {
+                  "index": 1,
+                  "text": "System Logs"
+                },
+                "systemd": {
+                  "index": 0,
+                  "text": "System Services"
+                },
+                "vulnerability-detector": {
+                  "index": 17,
+                  "text": "Vulnerability Scan"
+                },
+                "web": {
+                  "index": 14,
+                  "text": "Web Server Traffic"
+                }
+              },
+              "type": "value"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 6,
+        "x": 18,
+        "y": 5
+      },
+      "id": 24,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "right",
+          "showLegend": false,
+          "values": []
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "rule.groups",
+              "id": "7",
+              "settings": {
+                "min_doc_count": "0",
+                "order": "desc",
+                "orderBy": "_term",
+                "size": "0"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "format": "table",
+          "luceneQueryType": "Metric",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "",
+          "queryType": "lucene",
+          "refId": "Severity",
+          "serviceMap": true,
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Rules Groups",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "afaj5psa8s6iod"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rule.description"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 776
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rule.level"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 81
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Count"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 58
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "agent.name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 133
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 18,
+        "x": 0,
+        "y": 14
+      },
+      "id": 202,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "rule.description",
+              "id": "2",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "20"
+              },
+              "type": "terms"
+            },
+            {
+              "field": "agent.name",
+              "id": "3",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1"
+              },
+              "type": "terms"
+            },
+            {
+              "field": "rule.level",
+              "id": "4",
+              "settings": {
+                "min_doc_count": "1",
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "1"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "rule.level:>=7",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Top Urgent Security Alerts",
+      "type": "table"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 205,
+      "panels": [
+        {
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "description": "Shows security alerts mapped to NIST standards (government security rules), highlighting areas like Login Security, System Monitoring, and Network Defense.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "AC.1": {
+                      "index": 0,
+                      "text": "Access Control Policy (AC.1)"
+                    },
+                    "AC.2": {
+                      "index": 1,
+                      "text": "Account Management (AC.2)"
+                    },
+                    "AC.3": {
+                      "index": 2,
+                      "text": "Access Enforcement (AC.3)"
+                    },
+                    "AC.4": {
+                      "index": 3,
+                      "text": "Information Flow Enforcement (AC.4)"
+                    },
+                    "AC.6": {
+                      "index": 4,
+                      "text": "Least Privilege (AC.6)"
+                    },
+                    "AC.7": {
+                      "index": 5,
+                      "text": "Unsuccessful Login Attempts (AC.7)"
+                    },
+                    "AU.12": {
+                      "index": 9,
+                      "text": "Audit Generation (AU.12)"
+                    },
+                    "AU.14": {
+                      "index": 10,
+                      "text": "Session Audit (AU.14)"
+                    },
+                    "AU.2": {
+                      "index": 6,
+                      "text": "Audit Events (AU.2)"
+                    },
+                    "AU.3": {
+                      "index": 7,
+                      "text": "Content of Audit Records (AU.3)"
+                    },
+                    "AU.6": {
+                      "index": 8,
+                      "text": "Audit Review, Analysis (AU.6)"
+                    },
+                    "CA.7": {
+                      "index": 11,
+                      "text": "Continuous Monitoring (CA.7)"
+                    },
+                    "CM.1": {
+                      "index": 12,
+                      "text": "Configuration Management Policy (CM.1)"
+                    },
+                    "CM.2": {
+                      "index": 13,
+                      "text": "Baseline Configuration (CM.2)"
+                    },
+                    "CM.3": {
+                      "index": 14,
+                      "text": "Configuration Change Control (CM.3)"
+                    },
+                    "CM.6": {
+                      "index": 15,
+                      "text": "Configuration Settings (CM.6)"
+                    },
+                    "CP.2": {
+                      "index": 16,
+                      "text": "Contingency Plan (CP.2)"
+                    },
+                    "IA.2": {
+                      "index": 17,
+                      "text": "Identification & Authentication (IA.2)"
+                    },
+                    "IA.4": {
+                      "index": 18,
+                      "text": "Identifier Management (IA.4)"
+                    },
+                    "IA.5": {
+                      "index": 19,
+                      "text": "Authenticator Management (IA.5)"
+                    },
+                    "IR.4": {
+                      "index": 20,
+                      "text": "Incident Handling (IR.4)"
+                    },
+                    "RA.5": {
+                      "index": 21,
+                      "text": "Vulnerability Scanning (RA.5)"
+                    },
+                    "SC.5": {
+                      "index": 22,
+                      "text": "Denial of Service Protection (SC.5)"
+                    },
+                    "SC.7": {
+                      "index": 23,
+                      "text": "Boundary Protection (SC.7)"
+                    },
+                    "SC.8": {
+                      "index": 24,
+                      "text": "Transmission Confidentiality (SC.8)"
+                    },
+                    "SI.10": {
+                      "index": 29,
+                      "text": "Information Input Validation (SI.10)"
+                    },
+                    "SI.11": {
+                      "index": 30,
+                      "text": "Error Handling (SI.11)"
+                    },
+                    "SI.2": {
+                      "index": 25,
+                      "text": "Flaw Remediation (SI.2)"
+                    },
+                    "SI.3": {
+                      "index": 26,
+                      "text": "Malicious Code Protection (SI.3)"
+                    },
+                    "SI.4": {
+                      "index": 27,
+                      "text": "Information System Monitoring (SI.4)"
+                    },
+                    "SI.7": {
+                      "index": 28,
+                      "text": "Software & Info Integrity (SI.7)"
+                    }
+                  },
+                  "type": "value"
+                }
+              ]
+            },
+            "overrides": [
+              {
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "Count"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": true,
+                      "viz": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 12,
+            "x": 0,
+            "y": 21
+          },
+          "id": 25,
+          "options": {
+            "displayLabels": [
+              "percent"
+            ],
+            "legend": {
+              "calcs": [],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "values": []
+            },
+            "pieType": "donut",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": true
+            },
+            "sort": "desc",
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "alias": "",
+              "bucketAggs": [
+                {
+                  "field": "rule.nist_800_53",
+                  "id": "7",
+                  "settings": {
+                    "min_doc_count": "0",
+                    "order": "desc",
+                    "orderBy": "_term",
+                    "size": "0"
+                  },
+                  "type": "terms"
+                }
+              ],
+              "datasource": {
+                "type": "grafana-opensearch-datasource",
+                "uid": "afaj5psa8s6iod"
+              },
+              "format": "table",
+              "luceneQueryType": "Metric",
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "count"
+                }
+              ],
+              "query": "",
+              "queryType": "lucene",
+              "refId": "Severity",
+              "serviceMap": true,
+              "timeField": "@timestamp"
+            }
+          ],
+          "title": "NIST 800.53 Agent Count",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "description": "Shows security alerts related to Data Privacy laws (GDPR) to highlight potential issues with personal data protection.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "III_13.1": {
+                      "index": 11,
+                      "text": "Data Collection Info Missing (III_13.1)"
+                    },
+                    "III_14.1": {
+                      "index": 3,
+                      "text": "User Notification Issue (III_14.1)"
+                    },
+                    "II_5.1.a": {
+                      "index": 18,
+                      "text": "Unfair/Illegal Processing (II_5.1.a)"
+                    },
+                    "II_5.1.b": {
+                      "index": 17,
+                      "text": "Data Misuse Risk (II_5.1.b)"
+                    },
+                    "II_5.1.c": {
+                      "index": 16,
+                      "text": "Excessive Data Collection (II_5.1.c)"
+                    },
+                    "II_5.1.d": {
+                      "index": 15,
+                      "text": "Data Accuracy Issue (II_5.1.d)"
+                    },
+                    "II_5.1.e": {
+                      "index": 14,
+                      "text": "Old Data Retention Issue (II_5.1.e)"
+                    },
+                    "II_5.1.f": {
+                      "index": 0,
+                      "text": "Unauthorized Data Changes (II_5.1.f)"
+                    },
+                    "IV_22.1": {
+                      "index": 13,
+                      "text": "Automated Decision Risk (IV_22.1)"
+                    },
+                    "IV_24.1": {
+                      "index": 7,
+                      "text": "Admin Responsibility Issue (IV_24.1)"
+                    },
+                    "IV_25.2": {
+                      "index": 6,
+                      "text": "Insecure Default Settings (IV_25.2)"
+                    },
+                    "IV_28": {
+                      "index": 8,
+                      "text": "Third-Party Security Risk (IV_28)"
+                    },
+                    "IV_29": {
+                      "index": 19,
+                      "text": "Unauthorized Access (IV_29)"
+                    },
+                    "IV_30.1.g": {
+                      "index": 4,
+                      "text": "Missing Activity Logs (IV_30.1.g)"
+                    },
+                    "IV_30.2": {
+                      "index": 12,
+                      "text": "Processor Log Failure (IV_30.2)"
+                    },
+                    "IV_32.1": {
+                      "index": 9,
+                      "text": "Encryption/Security Failure (IV_32.1)"
+                    },
+                    "IV_32.2": {
+                      "index": 2,
+                      "text": "System Security Risk (IV_32.2)"
+                    },
+                    "IV_32.4": {
+                      "index": 10,
+                      "text": "Regular Security Review (IV_32.4)"
+                    },
+                    "IV_35.1": {
+                      "index": 5,
+                      "text": "High Risk Processing (IV_35.1)"
+                    },
+                    "IV_35.7.d": {
+                      "index": 1,
+                      "text": "Security Check Failure (IV_35.7.d)"
+                    }
+                  },
+                  "type": "value"
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 12,
+            "x": 12,
+            "y": 21
+          },
+          "id": 204,
+          "options": {
+            "displayLabels": [
+              "percent"
+            ],
+            "legend": {
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "donut",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "/^Count$/",
+              "values": true
+            },
+            "sort": "desc",
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "bucketAggs": [
+                {
+                  "field": "rule.gdpr",
+                  "id": "7",
+                  "settings": {
+                    "min_doc_count": "0",
+                    "order": "desc",
+                    "orderBy": "_term",
+                    "size": "0"
+                  },
+                  "type": "terms"
+                }
+              ],
+              "datasource": {
+                "type": "grafana-opensearch-datasource",
+                "uid": "afaj5psa8s6iod"
+              },
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "count"
+                }
+              ],
+              "query": "",
+              "refId": "A",
+              "timeField": "@timestamp"
+            }
+          ],
+          "title": "GDPR Compliance Rules",
+          "type": "piechart"
+        }
+      ],
+      "title": "GPDR and NIST Compliance Summary",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 200,
+      "panels": [
+        {
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "description": "Categorizes threats by 'hacker tactics' (MITRE ATT&CK) to show what types of attacks are occurring (e.g. stealing credentials vs deleting files).",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 12,
+            "x": 0,
+            "y": 22
+          },
+          "id": 203,
+          "options": {
+            "displayLabels": [
+              "percent"
+            ],
+            "legend": {
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true
+            },
+            "pieType": "donut",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "/^Count$/",
+              "values": true
+            },
+            "sort": "desc",
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "bucketAggs": [
+                {
+                  "field": "rule.mitre.technique",
+                  "id": "7",
+                  "settings": {
+                    "min_doc_count": "0",
+                    "order": "desc",
+                    "orderBy": "_term",
+                    "size": "0"
+                  },
+                  "type": "terms"
+                }
+              ],
+              "datasource": {
+                "type": "grafana-opensearch-datasource",
+                "uid": "afaj5psa8s6iod"
+              },
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "count"
+                }
+              ],
+              "query": "",
+              "refId": "A",
+              "timeField": "@timestamp"
+            }
+          ],
+          "title": "Compliance Summary (MITRE ID)",
+          "type": "piechart"
+        },
+        {
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "afaj5psa8s6iod"
+          },
+          "description": "Mitre Tactic",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": []
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 12,
+            "x": 12,
+            "y": 22
+          },
+          "id": 26,
+          "options": {
+            "displayLabels": [
+              "percent"
+            ],
+            "legend": {
+              "calcs": [],
+              "displayMode": "table",
+              "placement": "right",
+              "showLegend": true,
+              "values": []
+            },
+            "pieType": "donut",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": true
+            },
+            "sort": "desc",
+            "tooltip": {
+              "hideZeros": false,
+              "maxHeight": 600,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "12.3.1",
+          "targets": [
+            {
+              "alias": "",
+              "bucketAggs": [
+                {
+                  "field": "rule.mitre.tactic",
+                  "id": "7",
+                  "settings": {
+                    "min_doc_count": "0",
+                    "order": "desc",
+                    "orderBy": "_term",
+                    "size": "0"
+                  },
+                  "type": "terms"
+                }
+              ],
+              "datasource": {
+                "type": "grafana-opensearch-datasource",
+                "uid": "afaj5psa8s6iod"
+              },
+              "format": "table",
+              "luceneQueryType": "Metric",
+              "metrics": [
+                {
+                  "id": "1",
+                  "type": "count"
+                }
+              ],
+              "query": "",
+              "queryType": "lucene",
+              "refId": "Severity",
+              "serviceMap": true,
+              "timeField": "@timestamp"
+            }
+          ],
+          "title": "Mitre Tactic",
+          "type": "piechart"
+        }
+      ],
+      "title": "MITRE Compliance Summary",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "id": 300,
+      "panels": [],
+      "title": "Tier 1: The Essentials",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "afaj5psa8s6iod"
+      },
+      "description": "Critical. This is the heartbeat of your SOC. It contains all rule-based detections, including your Suricata logs.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 36
+      },
+      "id": 301,
+      "options": {},
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "@timestamp",
+              "id": "2",
+              "settings": {
+                "interval": "auto"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "*",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Wazuh Alerts (Essentials)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-monitoring"
+      },
+      "description": "Critical. This tracks the connection status of your 50 devices. If an agent goes 'Disconnected', you need to know immediately.",
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 36
+      },
+      "id": 302,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "name",
+              "id": "2",
+              "type": "terms"
+            }
+          ],
+          "metrics": [
+            {
+              "field": "id",
+              "id": "1",
+              "type": "cardinality"
+            }
+          ],
+          "query": "status:\"active\"",
+          "refId": "A",
+          "timeField": "timestamp"
+        }
+      ],
+      "title": "Wazuh Monitoring (Agent Status)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-vulnerabilities"
+      },
+      "description": "High Value. This provides a 'Current State' view of your network's risk. Essential for prioritizing patching.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 36
+      },
+      "id": 303,
+      "options": {},
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "title",
+              "id": "2",
+              "settings": {
+                "order": "desc",
+                "orderBy": "_count",
+                "size": "10"
+              },
+              "type": "terms"
+            }
+          ],
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "severity:High OR severity:Critical",
+          "refId": "A",
+          "timeField": "timestamp"
+        }
+      ],
+      "title": "Wazuh Vulnerabilities (Risk)",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
+      "id": 400,
+      "panels": [],
+      "title": "Tier 2: High Value for IT Hygiene",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-inventory-ports"
+      },
+      "description": "Excellent for spotting unauthorized open ports (e.g., SSH, RDP).",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 45
+      },
+      "id": 401,
+      "options": {},
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "local_port",
+              "id": "2",
+              "settings": {
+                "size": "10"
+              },
+              "type": "terms"
+            },
+            {
+              "field": "protocol",
+              "id": "3",
+              "type": "terms"
+            }
+          ],
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "*",
+          "refId": "A",
+          "timeField": "timestamp"
+        }
+      ],
+      "title": "Inventory Ports (Unauthorized Open)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-inventory-packages"
+      },
+      "description": "Use this to see if unauthorized software is being installed.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 45
+      },
+      "id": 402,
+      "options": {},
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "name",
+              "id": "2",
+              "settings": {
+                "size": "20"
+              },
+              "type": "terms"
+            },
+            {
+              "field": "version",
+              "id": "3",
+              "type": "terms"
+            }
+          ],
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "*",
+          "refId": "A",
+          "timeField": "timestamp"
+        }
+      ],
+      "title": "Inventory Packages (Unauthorized Software)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-inventory-system"
+      },
+      "description": "Useful for basic asset identification (Hostname, OS, Architecture).",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 45
+      },
+      "id": 403,
+      "options": {},
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "hostname",
+              "id": "2",
+              "settings": {
+                "size": "10"
+              },
+              "type": "terms"
+            },
+            {
+              "field": "os.name",
+              "id": "3",
+              "type": "terms"
+            }
+          ],
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "*",
+          "refId": "A",
+          "timeField": "timestamp"
+        }
+      ],
+      "title": "Inventory System (Assets)",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 53
+      },
+      "id": 500,
+      "panels": [],
+      "title": "Tier 3: Selective Use",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-inventory-users"
+      },
+      "description": "Tracks who has local admin rights or which accounts are active.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 54
+      },
+      "id": 501,
+      "options": {},
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "name",
+              "id": "2",
+              "settings": {
+                "size": "10"
+              },
+              "type": "terms"
+            },
+            {
+              "field": "group",
+              "id": "3",
+              "type": "terms"
+            }
+          ],
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "*",
+          "refId": "A",
+          "timeField": "timestamp"
+        }
+      ],
+      "title": "Inventory Users (Privileges)",
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "refresh": "10s",
+  "schemaVersion": 42,
+  "tags": [
+    "wazuh",
+    "siem"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Security Dashboard",
+  "uid": "54540",
+  "version": 1
+}

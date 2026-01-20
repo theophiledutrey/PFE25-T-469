@@ -1,0 +1,20 @@
+---
+- name: Stop Fail2ban service
+  service:
+    name: fail2ban
+    state: stopped
+  become: true
+  ignore_errors: true
+
+- name: Remove Fail2ban package
+  apt:
+    name: fail2ban
+    state: absent
+    purge: yes
+  become: true
+
+- name: Remove Fail2ban configuration
+  file:
+    path: /etc/fail2ban
+    state: absent
+  become: true

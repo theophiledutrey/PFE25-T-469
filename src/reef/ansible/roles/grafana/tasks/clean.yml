@@ -1,0 +1,35 @@
+---
+- name: Stop Grafana Server
+  service:
+    name: grafana-server
+    state: stopped
+  become: true
+  ignore_errors: true
+
+- name: Disable Grafana Server
+  systemd:
+    name: grafana-server
+    enabled: no
+    daemon_reload: yes
+  become: true
+  ignore_errors: true
+
+- name: Remove Grafana packages
+  apt:
+    name:
+      - grafana
+      - grafana-enterprise
+    state: absent
+    purge: yes
+  become: true
+
+- name: Remove Grafana directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/grafana
+    - /etc/grafana
+    - /usr/share/grafana
+    - /var/log/grafana
+  become: true

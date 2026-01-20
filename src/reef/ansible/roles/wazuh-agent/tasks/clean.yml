@@ -1,0 +1,20 @@
+---
+- name: Stop Wazuh Agent service
+  service:
+    name: wazuh-agent
+    state: stopped
+  become: true
+  ignore_errors: true
+
+- name: Remove Wazuh Agent package
+  apt:
+    name: wazuh-agent
+    state: absent
+    purge: yes
+  become: true
+
+- name: Remove Wazuh Agent directories
+  file:
+    path: /var/ossec
+    state: absent
+  become: true

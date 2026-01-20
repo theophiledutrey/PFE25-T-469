@@ -1,4 +1,5 @@
 ---
+- include_tasks: clean.yml
 - name: Install UFW
   apt:
     name: ufw
@@ -81,6 +82,15 @@
     proto: tcp
   when: ufw_allow_wazuh_server | bool or 'wazuh-server' in (enabled_roles | default([]))
   become: true
+
+- name: Allow Grafana (Port 3000)
+  ufw:
+    rule: allow
+    port: '3000'
+    proto: tcp
+  when: "'grafana' in (enabled_roles | default([]))"
+  become: true
+
 
 - name: Allow additional TCP ports
   ufw:

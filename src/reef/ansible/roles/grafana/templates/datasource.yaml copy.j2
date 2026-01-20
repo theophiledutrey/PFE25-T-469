@@ -1,0 +1,21 @@
+apiVersion: 1
+
+datasources:
+  - name: Wazuh
+    type: grafana-opensearch-datasource
+    uid: afaj5psa8s6iod
+    url: https://{{ wazuh_manager_ip | default('127.0.0.1') }}:9200
+    access: proxy
+    basicAuth: true
+    basicAuthUser: admin
+    secureJsonData:
+      basicAuthPassword: "{{ wazuh_admin_password }}"
+    editable: true
+    jsonData:
+      database: "wazuh-alerts-*"
+      indexName: "wazuh-alerts-*"
+      timeField: "timestamp"
+      flavor: "opensearch"
+      version: "2.16.0"
+      pplEnabled: true
+      tlsSkipVerify: true

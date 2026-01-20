@@ -1,0 +1,13 @@
+---
+- name: Reset UFW
+  command: ufw --force reset
+  become: true
+  ignore_errors: true
+
+- name: Disable UFW
+  command: ufw disable
+  become: true
+  ignore_errors: true
+
+# Optional: full removal if desired, but request implies "start when deploying" which can check existing state.
+# A reset is cleaner for keeping the package but wiping rules.

@@ -39,11 +39,14 @@ def show_deploy():
                             chk = ui.checkbox(role, value=(role in enabled)).classes('text-slate-300')
                             selected_roles.append((role, chk))
                     
-                    def save_roles():
+                    def save_roles(notify=True):
                         new_enabled = [r for r, c in selected_roles if c.value]
-                        current_config['enabled_roles'] = new_enabled
-                        if update_yaml_config_from_schema(current_config):
-                            ui.notify("Roles updated!", type='positive')
+                        # Must reload config to avoid overwriting unrelated concurrent edits (if any)
+                        cfg = load_current_config()
+                        cfg['enabled_roles'] = new_enabled
+                        if update_yaml_config_from_schema(cfg):
+                            if notify:
+                                ui.notify("Roles updated!", type='positive')
                             
                     ui.button("Save Role Selection", on_click=save_roles).classes('mt-4 bg-slate-700')
 
@@ -92,6 +95,9 @@ def show_deploy():
                     results_container = ui.column().classes('w-full mt-4')
 
             async def run_deployment():
+                # Auto-save current selection before deploying
+                save_roles(notify=False)
+                
                 deploy_log.clear()
                 credentials_container.classes(add='hidden')
                 credentials_container.clear()
@@ -151,7 +157,7 @@ def show_deploy():
                 manager_ip = config.get('wazuh_manager_ip', '<manager_ip>')
                 
                 password = None
-                pass_file = ANSIBLE_DIR / 'wazuh-admin-password.txt'
+                pass_file = ANSIBLE_DIR / 'inventory' / 'wazuh-admin-password.txt'
                 
                 import re
                 match = re.search(r'"admin",\s+"([^"]+)"', output)
@@ -170,16 +176,19 @@ def show_deploy():
                             
                             with ui.column().classes('bg-black/30 p-4 rounded-lg w-full gap-2 border border-white/10'):
                                 with ui.row().classes('gap-2'):
-                                    ui.label("Dashboard:").classes('font-bold text-slate-400')
-                                    ui.link(f"https://{manager_ip}", f"https://{manager_ip}", new_tab=True).classes('text-sky-400 font-bold')
+                                    ui.label("Security Dashboard:").classes('font-bold text-slate-400')
+                                    ui.link(f"http://{manager_ip}:3000/d/54540/security-dashboard", f"http://{manager_ip}:3000/d/54540/security-dashboard", new_tab=True).classes('text-sky-400 font-bold')
                                 
                                 with ui.row().classes('gap-2'):
-                                    ui.label("Username:").classes('font-bold text-slate-400')
+                                    ui.label("Username:").classes('font-bold text-slate-400')   
                                     ui.label("admin").classes('font-mono text-slate-200 bg-white/10 px-1 rounded')
+
+                                admin_password = "admin"
+                                ui.label(f"Note: Default password is '{admin_password}'. It's recommended to change it after 1st login.").classes('text-slate-500 text-sm mt-2 italic')
 
                                 with ui.row().classes('gap-2'):
                                     ui.label("Password:").classes('font-bold text-slate-400')
-                                    ui.label(password).classes('font-mono text-rose-300 font-bold bg-white/10 px-1 rounded')
+                                    ui.label(admin_password).classes('font-mono text-rose-300 font-bold bg-white/10 px-1 rounded')
                             
                             ui.label("Note: Accept the self-signed certificate warning.").classes('text-slate-500 text-sm mt-2 italic')
 
@@ -197,18 +206,6 @@ def show_deploy():
                     cleanup_log.clear()
                     playbook = ANSIBLE_DIR / "playbooks" / "experimental.yml"
                     inventory = HOSTS_INI_FILE
-                    
-                    # Reuse scope for cleanup? Or simplified cleanup? 
-                    # User likely wants to cleanup everything usually, but granular cleanup is powerful.
-                    # Let's keep cleanup global for "Emergency Cleanup" tab to avoid confusion, 
-                    # or better: duplicate the scope selector here if requested. 
-                    # For now, keeping it global as per "Emergency Cleanup" implication, 
-                    # OR we can respect the main tab's selection if the user wants?
-                    # The prompt asked for "full clean... however... add just one agent... without resetting all".
-                    # So granular deploy implies granular cleanup is handled by the deploy process itself (roles contain cleanup).
-                    # This specific "Emergency Cleanup" tab might be better left as a nuclear option for now, 
-                    # or we can add a simple confirmation/target.
-                    # Let's leave this as global nuclear option for safety/simplicity unless specific request.
                     
                     cmd = f"ansible-playbook {playbook} -i {inventory} -e '{{\"enabled_roles\": [\"cleanup\"]}}'"
                     await async_run_command(cmd, cleanup_log)

@@ -142,14 +142,14 @@ def show_dashboard():
                             ui.icon('security')
                         
                         with ui.column().classes('gap-0'):
-                            ui.label('Wazuh Dashboard').classes('text-slate-200 font-bold text-lg')
+                            ui.label('Security Dashboard').classes('text-slate-200 font-bold text-lg')
                             with ui.row().classes('items-center gap-2'):
                                 status_label = ui.label('Checking...').classes('text-xs text-slate-500')
                                 spinner = ui.spinner('dots', size='xs').classes('text-slate-500')
                                 wazuh_refs['label'] = status_label
                                 wazuh_refs['spinner'] = spinner
 
-                    ui.button('Open').props(f'flat dense size=sm href=https://{manager_ip} target=_blank').classes('text-sky-400')
+                    ui.button('Open').props(f'flat dense size=sm href=http://{manager_ip}:3000/d/54540/security-dashboard target=_blank').classes('text-sky-400')
 
                 # Managers Box
                 with ui.row().classes('w-full bg-sky-500/5 border border-sky-500/10 rounded-xl p-4 items-center gap-4'):
@@ -194,9 +194,6 @@ def show_dashboard():
                                  ui.timer(0.1, lambda i=ip, s=status_icon: check_ping(i, s), once=True)
                 else:
                     ui.label('No agents found.').classes('col-span-2 text-slate-500')
-
-                
-
 
         # Active Roles Card
         with ui.column().classes(card_style()):

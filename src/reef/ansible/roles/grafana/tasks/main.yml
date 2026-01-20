@@ -1,0 +1,117 @@
+---
+- include_tasks: clean.yml
+
+- name: Install dependencies for Grafana repository
+  apt:
+    name:
+      - apt-transport-https
+      - wget
+      - gnupg
+    state: present
+  become: true
+
+- name: Ensure /etc/apt/keyrings exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  become: true
+
+- name: Add Grafana GPG key
+  shell: wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | tee /etc/apt/keyrings/grafana.gpg > /dev/null
+  args:
+    creates: /etc/apt/keyrings/grafana.gpg
+  become: true
+
+- name: Add Grafana repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
+    filename: grafana
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Install Grafana Enterprise
+  apt:
+    name: grafana-enterprise
+    state: present
+  become: true
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  become: true
+
+- name: Enable Grafana Server
+  systemd:
+    name: grafana-server
+    enabled: yes
+  become: true
+
+- name: Install OpenSearch Datasource Plugin
+  command: grafana-cli plugins install grafana-opensearch-datasource
+  register: plugin_install
+  changed_when: "'installed' in plugin_install.stdout"
+  failed_when: 
+    - plugin_install.rc != 0
+    - "'already installed' not in plugin_install.stderr"
+    - "'already installed' not in plugin_install.stdout"
+  become: true
+
+- name: Ensure Grafana data directory permissions
+  file:
+    path: /var/lib/grafana
+    state: directory
+    owner: grafana
+    group: grafana
+    recurse: yes
+  become: true
+
+- name: Read Wazuh admin password
+  set_fact:
+    wazuh_admin_password: "{{ lookup('file', '../inventory/wazuh-admin-password.txt') }}"
+  no_log: true
+  run_once: true
+  delegate_to: localhost
+
+- name: Create Grafana dashboards directory
+  file:
+    path: /var/lib/grafana/dashboards
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: '0755'
+  become: true
+
+- name: Copy Wazuh Dashboard
+  copy:
+    src: default_dashboard.json
+    dest: /var/lib/grafana/dashboards/wazuh.json
+    owner: grafana
+    group: grafana
+    mode: '0644'
+  become: true
+
+- name: Provision Grafana Datasource
+  template:
+    src: datasource.yaml.j2
+    dest: /etc/grafana/provisioning/datasources/wazuh.yaml
+    owner: grafana
+    group: grafana
+    mode: '0640'
+  become: true
+
+- name: Provision Grafana Dashboards Config
+  template:
+    src: dashboards.yaml.j2
+    dest: /etc/grafana/provisioning/dashboards/wazuh.yaml
+    owner: grafana
+    group: grafana
+    mode: '0640'
+  become: true
+
+- name: Restart Grafana Server
+  systemd:
+    name: grafana-server
+    state: restarted
+  become: true

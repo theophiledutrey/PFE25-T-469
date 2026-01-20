@@ -1,0 +1,32 @@
+---
+- name: Stop Wazuh Dashboard service
+  service:
+    name: wazuh-dashboard
+    state: stopped
+  become: true
+  ignore_errors: true
+
+- name: Disable Wazuh Dashboard service
+  systemd:
+    name: wazuh-dashboard
+    enabled: no
+    daemon_reload: yes
+  become: true
+  ignore_errors: true
+
+- name: Remove Wazuh Dashboard package
+  apt:
+    name: wazuh-dashboard
+    state: absent
+  become: true
+
+- name: Remove Wazuh Dashboard directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/wazuh-dashboard
+    - /etc/wazuh-dashboard
+    - /var/log/wazuh-dashboard
+    - /usr/share/wazuh-dashboard
+  become: true

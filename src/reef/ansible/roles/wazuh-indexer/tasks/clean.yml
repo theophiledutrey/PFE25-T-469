@@ -1,0 +1,32 @@
+---
+- name: Stop Wazuh Indexer service
+  service:
+    name: wazuh-indexer
+    state: stopped
+  become: true
+  ignore_errors: true
+
+- name: Disable Wazuh Indexer service
+  systemd:
+    name: wazuh-indexer
+    enabled: no
+    daemon_reload: yes
+  become: true
+  ignore_errors: true
+
+- name: Remove Wazuh Indexer package
+  apt:
+    name: wazuh-indexer
+    state: absent
+  become: true
+
+- name: Remove Wazuh Indexer directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/wazuh-indexer
+    - /etc/wazuh-indexer
+    - /var/log/wazuh-indexer
+    - /usr/share/wazuh-indexer
+  become: true

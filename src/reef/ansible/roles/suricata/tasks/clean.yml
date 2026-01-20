@@ -1,0 +1,32 @@
+---
+- name: Stop Suricata service
+  service:
+    name: suricata
+    state: stopped
+  become: true
+  ignore_errors: true
+
+- name: Disable Suricata service
+  systemd:
+    name: suricata
+    enabled: no
+    daemon_reload: yes
+  become: true
+  ignore_errors: true
+
+- name: Remove Suricata package
+  apt:
+    name: suricata
+    state: absent
+    purge: yes
+  become: true
+
+- name: Remove Suricata directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/suricata
+    - /var/log/suricata
+    - /var/lib/suricata
+  become: true

@@ -1,4 +1,5 @@
 ---
+- include_tasks: clean.yml
 #- name: Install gnupg and apt-transport-https
 #  apt:
 #    name:

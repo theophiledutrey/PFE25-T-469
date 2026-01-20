@@ -1,0 +1,30 @@
+---
+- name: Stop Wazuh Manager service
+  service:
+    name: wazuh-manager
+    state: stopped
+  become: true
+  ignore_errors: true
+
+- name: Disable Wazuh Manager service
+  systemd:
+    name: wazuh-manager
+    enabled: no
+    daemon_reload: yes
+  become: true
+  ignore_errors: true
+
+- name: Remove Wazuh Manager package
+  apt:
+    name: wazuh-manager
+    state: absent
+  become: true
+
+- name: Remove Wazuh Manager directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/ossec
+    - /etc/wazuh-manager
+  become: true
