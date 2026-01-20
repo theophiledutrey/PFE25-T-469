@@ -1,0 +1,16 @@
+---
+- include_tasks: sysctl.yml
+- include_tasks: updates.yml
+
+- name: Install auditd
+  apt:
+    name: auditd
+    state: present
+  become: true
+
+- name: Enable and start auditd
+  service:
+    name: auditd
+    state: started
+    enabled: yes
+  become: true

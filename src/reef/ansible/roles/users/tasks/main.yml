@@ -1,0 +1,60 @@
+---
+- name: Ensure groups exist
+  group:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - admins
+    - developers
+    - guests
+  become: true
+
+- name: Check if users already exist
+  getent:
+    database: passwd
+  become: true
+
+- name: Generate random passwords for new users
+  set_fact:
+    new_passwords: "{{ new_passwords | default({}) | combine({item.name: lookup('password', '/dev/null length=20 chars=ascii_letters,digits,hexdigits')}) }}"
+  loop: "{{ defined_users }}"
+  when: item.name not in ansible_facts.getent_passwd
+  no_log: true
+  become: true
+
+- name: Create users
+  user:
+    name: "{{ item.name }}"
+    groups: "{{ item.groups }}"
+    shell: /bin/bash
+    password: "{{ new_passwords[item.name] | password_hash('sha512') }}"
+    update_password: on_create
+    append: yes
+  loop: "{{ defined_users }}"
+  when: item.name not in ansible_facts.getent_passwd
+  become: true
+
+- name: Add admins to sudoers
+  copy:
+    dest: "/etc/sudoers.d/{{ item.name }}"
+    content: "{{ item.name }} ALL=(ALL) NOPASSWD:ALL"
+    owner: root
+    group: root
+    mode: '0440'
+    validate: 'visudo -cf %s'
+  loop: "{{ defined_users }}"
+  when: 
+    - item.name not in ansible_facts.getent_passwd
+    - "'admins' in item.groups"
+  become: true
+
+- name: DISPLAY GENERATED PASSWORDS (SAVE THEM NOW!)
+  debug:
+    msg: 
+      - "---------------------------------------------------------"
+      - " USER CREATED: {{ item.name }}"
+      - " PASSWORD:     {{ new_passwords[item.name] }}"
+      - "---------------------------------------------------------"
+  loop: "{{ defined_users }}"
+  when: item.name in new_passwords
+  ignore_errors: yes

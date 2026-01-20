@@ -1,0 +1,10 @@
+---
+defined_users:
+  - name: admin_reef
+    groups: [admins, sudo]
+  
+  - name: dev_user
+    groups: [developers]
+
+  - name: guest_audit
+    groups: [guests]
