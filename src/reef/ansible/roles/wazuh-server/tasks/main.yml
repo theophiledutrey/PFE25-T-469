@@ -14,11 +14,37 @@
 #    msg: "Wazuh installation directory or configuration tarball is missing. Ensure wazuh-indexer role runs first."
 #  when: not wazuh_install_dir.stat.exists or not wazuh_config_tar.stat.exists
 
+- name: Check if Wazuh Server is already installed
+  stat:
+    path: /var/ossec/bin/wazuh-control
+  register: wazuh_server_installed
+
+- name: Stop Wazuh Manager service before installation
+  systemd:
+    name: wazuh-manager
+    state: stopped
+  failed_when: false
+  ignore_errors: yes
+
+- name: Kill any processes using Wazuh ports (1514, 1515, 55000)
+  shell: |
+    for port in 1514 1515 55000; do
+      if lsof -i :$port >/dev/null 2>&1; then
+        kill -9 $(lsof -t -i :$port) 2>/dev/null || true
+      fi
+    done
+  failed_when: false
+  changed_when: false
+
 - name: Install Wazuh Server
   command: ./wazuh-install.sh --wazuh-server {{ wazuh_server_node_name | default('wazuh-1') }} --overwrite
   args:
     chdir: /opt/wazuh-install
-    creates: /var/ossec/bin/wazuh-control
+  async: 1200
+  poll: 10
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  when: not wazuh_server_installed.stat.exists
 
 - name: Reload systemd daemon
   ansible.builtin.systemd:

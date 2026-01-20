@@ -16,13 +16,22 @@
 #  when: not wazuh_install_dir.stat.exists or not wazuh_install_script.stat.exists
 
 
+- name: Check if Wazuh Dashboard is already installed
+  stat:
+    path: /etc/wazuh-dashboard/opensearch_dashboards.yml
+  register: dashboard_installed
+
 - name: Install Wazuh Dashboard
   block:
     - name: Run Wazuh Dashboard installation script
       command: ./wazuh-install.sh --wazuh-dashboard {{ wazuh_dashboard_node_name | default('dashboard') }} --overwrite
       args:
         chdir: /opt/wazuh-install
-        creates: /etc/wazuh-dashboard/opensearch_dashboards.yml
+      async: 1200
+      poll: 10
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+      when: not dashboard_installed.stat.exists
       
   rescue:
     - name: Read Wazuh installation log

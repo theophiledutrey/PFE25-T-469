@@ -23,6 +23,24 @@
   apt:
     update_cache: yes
 
+- name: Remove wazuh-manager if present (conflicts with wazuh-agent)
+  block:
+    - name: Check if wazuh-manager is installed
+      shell: dpkg -l | grep wazuh-manager
+      register: manager_check
+      failed_when: false
+      changed_when: false
+
+    - name: Remove corrupted wazuh-manager scripts
+      shell: rm -f /var/lib/dpkg/info/wazuh-manager.*
+      when: manager_check.rc == 0
+      failed_when: false
+
+    - name: Force remove wazuh-manager
+      shell: dpkg --remove --force-all wazuh-manager && dpkg --purge --force-all wazuh-manager
+      when: manager_check.rc == 0
+      failed_when: false
+
 - name: Install Wazuh agent
   apt:
     name: wazuh-agent

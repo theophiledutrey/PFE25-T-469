@@ -37,13 +37,22 @@
     dest: /opt/wazuh-install/wazuh-install-files.tar
   when: inventory_hostname != ansible_play_hosts[0]
 
+- name: Check if Wazuh Indexer is already installed
+  stat:
+    path: /etc/wazuh-indexer/opensearch.yml
+  register: indexer_installed
+
 - name: Install Wazuh Indexer
   block:
     - name: Run Wazuh Indexer installation script
       command: ./wazuh-install.sh --wazuh-indexer {{ wazuh_node_name | default('node-1') }} --overwrite
       args:
         chdir: /opt/wazuh-install
-        creates: /etc/wazuh-indexer/opensearch.yml
+      async: 600
+      poll: 10
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+      when: not indexer_installed.stat.exists
   rescue:
     - name: Read Wazuh installation log
       slurp:

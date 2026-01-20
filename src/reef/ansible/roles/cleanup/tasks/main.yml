@@ -71,6 +71,54 @@
   ignore_errors: yes
   failed_when: false
 
+- name: Fix any corrupted Wazuh packages in dpkg database
+  shell: |
+    for pkg in wazuh-agent wazuh-manager wazuh-indexer wazuh-dashboard; do
+      if dpkg -l | grep -q "^.[^i].*$pkg"; then
+        echo "Fixing corrupted package: $pkg"
+        rm -f /var/lib/dpkg/info/$pkg.*
+        dpkg --remove --force-all $pkg 2>/dev/null || true
+        dpkg --purge --force-all $pkg 2>/dev/null || true
+      fi
+    done
+  failed_when: false
+  changed_when: false
+
+- name: Reconfigure dpkg after cleanup
+  command: dpkg --configure -a
+  failed_when: false
+
+- name: Check if Wazuh agent package is installed
+  shell: dpkg -l | grep wazuh-agent || true
+  register: wazuh_installed
+  changed_when: false
+  failed_when: false
+
+- name: Remove corrupted Wazuh pre-removal scripts
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /var/lib/dpkg/info/wazuh-agent.prerm
+    - /var/lib/dpkg/info/wazuh-agent.postrm
+  when: wazuh_installed.stdout != ""
+  failed_when: false
+
+- name: Force remove Wazuh agent package with dpkg
+  shell: dpkg --remove --force-remove-reinstreq wazuh-agent
+  when: wazuh_installed.stdout != ""
+  failed_when: false
+
+- name: Remove all Wazuh agent dpkg info files
+  shell: rm -f /var/lib/dpkg/info/wazuh-agent.*
+  when: wazuh_installed.stdout != ""
+  failed_when: false
+
+- name: Purge Wazuh agent configuration with dpkg
+  shell: dpkg --purge --force-all wazuh-agent
+  when: wazuh_installed.stdout != ""
+  failed_when: false
+
 - name: Remove Wazuh packages
   apt:
     name:
@@ -81,6 +129,7 @@
       - wazuh-agent
     state: absent
     purge: yes
+  failed_when: false
 
 - name: Remove Wazuh systemd service files
   file:
