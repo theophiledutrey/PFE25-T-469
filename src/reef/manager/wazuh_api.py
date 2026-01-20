@@ -4,7 +4,7 @@ import base64
 from pathlib import Path
 from reef.manager.core import load_current_config
 
-WAZUH_PASSWORD_FILE = Path(__file__).parent.parent / "ansible" / "wazuh-admin-password.txt"
+WAZUH_PASSWORD_FILE = Path(__file__).parent.parent / "ansible" / "inventory" / "wazuh-admin-password.txt"
 
 def get_wazuh_credentials():
     config = load_current_config()
