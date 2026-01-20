@@ -4,3 +4,4 @@ ruamel.yaml
 pytest
 ansible-core
 nicegui
+httpx

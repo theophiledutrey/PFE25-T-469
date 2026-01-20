@@ -1,6 +1,8 @@
 from nicegui import ui
 from reef.manager.core import GROUP_VARS_FILE, HOSTS_INI_FILE, load_current_config
 from reef.manager.ui_utils import page_header, card_style, status_badge
+from reef.manager.wazuh_api import fetch_wazuh_alert_summary, generate_report_text
+import datetime
 
 def show_dashboard():
     page_header("Dashboard", "Security Infrastructure Manager")
@@ -59,6 +61,18 @@ def show_dashboard():
     # Async Healthcheck
     import httpx
     
+    async def download_report():
+        ui.notify('Generating report...', type='info')
+        summary = await fetch_wazuh_alert_summary()
+        if summary:
+            report_content = generate_report_text(summary)
+            # Create a localized timestamp for filename
+            filename = f"reef_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+            ui.download(report_content.encode('utf-8'), filename)
+            ui.notify('Report generated successfully!', type='positive')
+        else:
+            ui.notify('Failed to generate report. Check Wazuh connection.', type='negative')
+
     async def check_wazuh(label_status, spinner):
         try:
             url = f"https://{manager_ip}"
@@ -221,6 +235,14 @@ def show_dashboard():
                     with ui.column().classes('gap-0'):
                         ui.label('Inventory').classes('text-xs text-slate-400')
                         ui.label('hosts.ini').classes('text-sm text-slate-300')
+
+        # Reports Card
+        with ui.column().classes(card_style()):
+            ui.label('Security Reports').classes('text-slate-400 font-bold mb-4 border-b border-white/10 pb-2 w-full')
+            ui.label('Generate a summary of security alerts from the last 24 hours.').classes('text-slate-400 text-sm mb-4')
+            
+            with ui.row().classes('items-center gap-4'):
+                ui.button('Download Summary (TXT)', on_click=download_report).props('icon=description color=indigo').classes('w-full')
 
     # Trigger check
     ui.timer(0.1, lambda: check_wazuh(status_label, spinner), once=True)
