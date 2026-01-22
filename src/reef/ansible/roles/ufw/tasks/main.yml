@@ -1,4 +1,11 @@
 ---
+- name: Install community.general collection
+  command: ansible-galaxy collection install community.general --upgrade
+  run_once: true
+  become: false
+  changed_when: false
+  ignore_errors: true
+
 - include_tasks: clean.yml
 - name: Install UFW
   apt:
