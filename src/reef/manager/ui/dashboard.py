@@ -1,7 +1,7 @@
 from nicegui import ui
 from reef.manager.core import GROUP_VARS_FILE, HOSTS_INI_FILE, load_current_config
 from reef.manager.ui_utils import page_header, card_style, status_badge
-from reef.manager.wazuh_api import fetch_wazuh_alert_summary, generate_report_text
+from reef.manager.wazuh_api import fetch_wazuh_alert_summary, generate_report_pdf
 import datetime
 
 def show_dashboard():
@@ -62,16 +62,21 @@ def show_dashboard():
     import httpx
     
     async def download_report():
-        ui.notify('Generating report...', type='info')
-        summary = await fetch_wazuh_alert_summary()
-        if summary:
-            report_content = generate_report_text(summary)
-            # Create a localized timestamp for filename
-            filename = f"reef_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-            ui.download(report_content.encode('utf-8'), filename)
-            ui.notify('Report generated successfully!', type='positive')
+        ui.notify('Generating PDF report... Please wait.', type='info')
+        data = await fetch_wazuh_alert_summary()
+        if data:
+            try:
+                # Convert bytearray to bytes for nicegui
+                pdf_bytes = bytes(generate_report_pdf(data))
+                # Create a localized timestamp for filename
+                filename = f"Reef_Security_Report_{datetime.datetime.now().strftime('%Y-%m-%d')}.pdf"
+                ui.download(pdf_bytes, filename)
+                ui.notify('Report generated successfully!', type='positive')
+            except Exception as e:
+                ui.notify(f'Error generating PDF: {e}', type='negative')
+                print(f"PDF Error: {e}")
         else:
-            ui.notify('Failed to generate report. Check Wazuh connection.', type='negative')
+            ui.notify('Failed to fetch data from Wazuh.', type='negative')
 
     async def check_wazuh(label_status, spinner):
         try:
@@ -156,14 +161,14 @@ def show_dashboard():
                             ui.icon('security')
                         
                         with ui.column().classes('gap-0'):
-                            ui.label('Security Dashboard').classes('text-slate-200 font-bold text-lg')
+                            ui.label('Wazuh Dashboard').classes('text-slate-200 font-bold text-lg')
                             with ui.row().classes('items-center gap-2'):
                                 status_label = ui.label('Checking...').classes('text-xs text-slate-500')
                                 spinner = ui.spinner('dots', size='xs').classes('text-slate-500')
                                 wazuh_refs['label'] = status_label
                                 wazuh_refs['spinner'] = spinner
 
-                    ui.button('Open').props(f'flat dense size=sm href=http://{manager_ip}:3000/d/54540/security-dashboard target=_blank').classes('text-sky-400')
+                    ui.button('Open').props(f'flat dense size=sm href=https://{manager_ip} target=_blank').classes('text-sky-400')
 
                 # Managers Box
                 with ui.row().classes('w-full bg-sky-500/5 border border-sky-500/10 rounded-xl p-4 items-center gap-4'):
@@ -209,6 +214,9 @@ def show_dashboard():
                 else:
                     ui.label('No agents found.').classes('col-span-2 text-slate-500')
 
+                
+
+
         # Active Roles Card
         with ui.column().classes(card_style()):
             ui.label('Active Components').classes('text-slate-400 font-bold mb-4 border-b border-white/10 pb-2 w-full')
@@ -239,10 +247,10 @@ def show_dashboard():
         # Reports Card
         with ui.column().classes(card_style()):
             ui.label('Security Reports').classes('text-slate-400 font-bold mb-4 border-b border-white/10 pb-2 w-full')
-            ui.label('Generate a summary of security alerts from the last 24 hours.').classes('text-slate-400 text-sm mb-4')
+            ui.label('Generate a comprehensive PDF audit based on Wazuh data.').classes('text-slate-400 text-sm mb-4')
             
             with ui.row().classes('items-center gap-4'):
-                ui.button('Download Summary (TXT)', on_click=download_report).props('icon=description color=indigo').classes('w-full')
+                ui.button('Download Audit Report (PDF)', on_click=download_report).props('icon=picture_as_pdf color=red-5').classes('w-full')
 
     # Trigger check
     ui.timer(0.1, lambda: check_wazuh(status_label, spinner), once=True)

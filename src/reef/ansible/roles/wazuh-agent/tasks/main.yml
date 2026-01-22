@@ -32,6 +32,12 @@
     WAZUH_MANAGER: "{{ wazuh_manager_ip }}"
   ignore_errors: "{{ ansible_check_mode }}"
 
+- name: Configure Wazuh agent syscollector interval
+  replace:
+    path: /var/ossec/etc/ossec.conf
+    regexp: '(?s)(<wodle name="syscollector">.*?<interval>)([^<]+)(</interval>)'
+    replace: '\g<1>15m\g<3>'
+
 - name: Enable and start Wazuh agent service
   systemd:
     name: wazuh-agent

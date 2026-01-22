@@ -19,16 +19,904 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 0,
   "links": [],
   "panels": [
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "wazuh-inventory"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "hideFrom": {
+              "viz": false
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 20,
+        "x": 0,
+        "y": 0
+      },
+      "id": 503,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "timed_out"
+          }
+        ]
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "_source.agent.name",
+              "text": "Agent",
+              "type": "string"
+            },
+            {
+              "selector": "_source.process.name",
+              "text": "Process",
+              "type": "string"
+            },
+            {
+              "selector": "_source.process.pid",
+              "text": "PID",
+              "type": "number"
+            },
+            {
+              "selector": "_source.network.transport",
+              "text": "Protocol",
+              "type": "string"
+            },
+            {
+              "selector": "_source.source.ip",
+              "text": "Local IP",
+              "type": "number"
+            },
+            {
+              "selector": "_source.source.port",
+              "text": "Local port",
+              "type": "number"
+            },
+            {
+              "selector": "_source.interface.state",
+              "text": "State",
+              "type": "string"
+            },
+            {
+              "selector": "_source.destination.ip",
+              "text": "Remote IP",
+              "type": "number"
+            },
+            {
+              "selector": "_source.destination.port",
+              "text": "Remote Port",
+              "type": "number"
+            }
+          ],
+          "computed_columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "wazuh-inventory"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "hits.hits",
+          "source": "url",
+          "type": "json",
+          "url": "https://192.168.64.12:9200/wazuh-states-inventory-ports-*/_search",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"size\": 1000,\n  \"query\": {\n    \"match_all\": {}\n  }\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "title": "Ports",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "wazuh-inventory"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "hideFrom": {
+              "viz": false
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Description"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 251
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 20,
+        "x": 0,
+        "y": 7
+      },
+      "id": 504,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "timed_out"
+          }
+        ]
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "_source.agent.name",
+              "text": "Agent",
+              "type": "string"
+            },
+            {
+              "selector": "_source.package.name",
+              "text": "Package",
+              "type": "string"
+            },
+            {
+              "selector": "_source.package.version",
+              "text": "Version",
+              "type": "number"
+            },
+            {
+              "selector": "_source.package.architecture",
+              "text": "Architecture",
+              "type": "string"
+            },
+            {
+              "selector": "_source.package.vendor",
+              "text": "Vendor",
+              "type": "string"
+            },
+            {
+              "selector": "_source.package.description",
+              "text": "Description",
+              "type": "string"
+            }
+          ],
+          "computed_columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "wazuh-inventory"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "hits.hits",
+          "source": "url",
+          "type": "json",
+          "url": "https://192.168.64.12:9200/wazuh-states-inventory-packages*/_search",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"size\": 1000,\n  \"query\": {\n    \"match_all\": {}\n  }\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "title": "Packages",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "wazuh-inventory"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "hideFrom": {
+              "viz": false
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Description"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 251
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 20,
+        "x": 0,
+        "y": 14
+      },
+      "id": 505,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "timed_out"
+          }
+        ]
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "_source.agent.name",
+              "text": "Agent",
+              "type": "string"
+            },
+            {
+              "selector": "_source.user.name",
+              "text": "Name",
+              "type": "string"
+            },
+            {
+              "selector": "_source.user.password.status",
+              "text": "Password Status",
+              "type": "string"
+            },
+            {
+              "selector": "_source.user.shell",
+              "text": "Shell",
+              "type": "string"
+            }
+          ],
+          "computed_columns": [],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "wazuh-inventory"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "hits.hits",
+          "source": "url",
+          "type": "json",
+          "url": "https://192.168.64.12:9200/wazuh-states-inventory-users*/_search",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"size\": 1000,\n  \"query\": {\n    \"match_all\": {}\n  }\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "title": "Users",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "wazuh-inventory"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "hideFrom": {
+              "viz": false
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 80
+              },
+              {
+                "color": "dark-red",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_source.host.memory.usage"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 251
+              },
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "mode": "lcd",
+                  "type": "gauge",
+                  "valueDisplayMode": "color"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Memory"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 399
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_source.host.memory.free"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 249
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 20,
+        "x": 0,
+        "y": 21
+      },
+      "id": 506,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Memory"
+          }
+        ]
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "_source.agent.name",
+              "text": "Name",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.cpu.cores",
+              "text": "CPU",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.memory.total",
+              "text": "",
+              "type": "number"
+            },
+            {
+              "selector": "_source.host.memory.usage",
+              "text": "",
+              "type": "number"
+            },
+            {
+              "selector": "_source.host.memory.free",
+              "text": "",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.memory.used",
+              "text": "",
+              "type": "string"
+            }
+          ],
+          "computed_columns": [
+            {
+              "selector": "",
+              "text": "",
+              "type": "string"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "wazuh-inventory"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "hits.hits",
+          "source": "url",
+          "type": "json",
+          "url": "https://192.168.64.12:9200/wazuh-states-inventory-hardware*/_search",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"size\": 1000,\n  \"query\": {\n    \"match_all\": {}\n  }\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "title": "Assets",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "wazuh-inventory"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 80
+              },
+              {
+                "color": "dark-red",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_source.host.memory.usage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Memory"
+            },
+            "properties": []
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_source.host.memory.free"
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 28
+      },
+      "id": 507,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "_source.agent.name",
+              "text": "Name",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.cpu.cores",
+              "text": "CPU",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.memory.total",
+              "text": "",
+              "type": "number"
+            },
+            {
+              "selector": "_source.host.memory.usage",
+              "text": "",
+              "type": "number"
+            },
+            {
+              "selector": "_source.host.memory.free",
+              "text": "",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.memory.used",
+              "text": "",
+              "type": "string"
+            }
+          ],
+          "computed_columns": [
+            {
+              "selector": "",
+              "text": "",
+              "type": "string"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "wazuh-inventory"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "hits.hits",
+          "source": "url",
+          "type": "json",
+          "url": "https://192.168.64.12:9200/wazuh-states-inventory-hardware*/_search",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"size\": 1000,\n  \"query\": {\n    \"match_all\": {}\n  }\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "title": "Assets",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "wazuh-inventory"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "footer": {
+              "reducers": []
+            },
+            "hideFrom": {
+              "viz": false
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "_score"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 68
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 20,
+        "x": 0,
+        "y": 32
+      },
+      "id": 508,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "_source"
+          }
+        ]
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "_source.agent.name",
+              "text": "Agent",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.hostname",
+              "text": "Host",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.os.name",
+              "text": "",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.os.version",
+              "text": "",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.os.kernel.release",
+              "text": "",
+              "type": "string"
+            },
+            {
+              "selector": "_source.host.architecture",
+              "text": "",
+              "type": "string"
+            }
+          ],
+          "computed_columns": [
+            {
+              "selector": "",
+              "text": "",
+              "type": "string"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "wazuh-inventory"
+          },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "hits.hits",
+          "source": "url",
+          "type": "json",
+          "url": "https://192.168.64.12:9200/wazuh-states-inventory-system*/_search",
+          "url_options": {
+            "body_content_type": "application/json",
+            "body_type": "raw",
+            "data": "{\n  \"size\": 1000,\n  \"query\": {\n    \"match_all\": {}\n  }\n}",
+            "method": "POST"
+          }
+        }
+      ],
+      "title": "System",
+      "type": "table"
+    },
     {
       "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 39
       },
       "id": 206,
       "panels": [],
@@ -158,7 +1046,7 @@
         "h": 4,
         "w": 18,
         "x": 0,
-        "y": 1
+        "y": 40
       },
       "id": 207,
       "options": {
@@ -372,7 +1260,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 1
+        "y": 40
       },
       "id": 201,
       "options": {
@@ -586,7 +1474,7 @@
         "h": 9,
         "w": 18,
         "x": 0,
-        "y": 5
+        "y": 44
       },
       "id": 17,
       "options": {
@@ -872,7 +1760,7 @@
         "h": 15,
         "w": 6,
         "x": 18,
-        "y": 5
+        "y": 44
       },
       "id": 24,
       "options": {
@@ -1027,7 +1915,7 @@
         "h": 6,
         "w": 18,
         "x": 0,
-        "y": 14
+        "y": 53
       },
       "id": 202,
       "options": {
@@ -1091,651 +1979,16 @@
       "type": "table"
     },
     {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 20
-      },
-      "id": 205,
-      "panels": [
-        {
-          "datasource": {
-            "type": "grafana-opensearch-datasource",
-            "uid": "wazuh-alerts"
-          },
-          "description": "Shows security alerts mapped to NIST standards (government security rules), highlighting areas like Login Security, System Monitoring, and Network Defense.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                }
-              },
-              "mappings": [
-                {
-                  "options": {
-                    "AC.1": {
-                      "index": 0,
-                      "text": "Access Control Policy (AC.1)"
-                    },
-                    "AC.2": {
-                      "index": 1,
-                      "text": "Account Management (AC.2)"
-                    },
-                    "AC.3": {
-                      "index": 2,
-                      "text": "Access Enforcement (AC.3)"
-                    },
-                    "AC.4": {
-                      "index": 3,
-                      "text": "Information Flow Enforcement (AC.4)"
-                    },
-                    "AC.6": {
-                      "index": 4,
-                      "text": "Least Privilege (AC.6)"
-                    },
-                    "AC.7": {
-                      "index": 5,
-                      "text": "Unsuccessful Login Attempts (AC.7)"
-                    },
-                    "AU.12": {
-                      "index": 9,
-                      "text": "Audit Generation (AU.12)"
-                    },
-                    "AU.14": {
-                      "index": 10,
-                      "text": "Session Audit (AU.14)"
-                    },
-                    "AU.2": {
-                      "index": 6,
-                      "text": "Audit Events (AU.2)"
-                    },
-                    "AU.3": {
-                      "index": 7,
-                      "text": "Content of Audit Records (AU.3)"
-                    },
-                    "AU.6": {
-                      "index": 8,
-                      "text": "Audit Review, Analysis (AU.6)"
-                    },
-                    "CA.7": {
-                      "index": 11,
-                      "text": "Continuous Monitoring (CA.7)"
-                    },
-                    "CM.1": {
-                      "index": 12,
-                      "text": "Configuration Management Policy (CM.1)"
-                    },
-                    "CM.2": {
-                      "index": 13,
-                      "text": "Baseline Configuration (CM.2)"
-                    },
-                    "CM.3": {
-                      "index": 14,
-                      "text": "Configuration Change Control (CM.3)"
-                    },
-                    "CM.6": {
-                      "index": 15,
-                      "text": "Configuration Settings (CM.6)"
-                    },
-                    "CP.2": {
-                      "index": 16,
-                      "text": "Contingency Plan (CP.2)"
-                    },
-                    "IA.2": {
-                      "index": 17,
-                      "text": "Identification & Authentication (IA.2)"
-                    },
-                    "IA.4": {
-                      "index": 18,
-                      "text": "Identifier Management (IA.4)"
-                    },
-                    "IA.5": {
-                      "index": 19,
-                      "text": "Authenticator Management (IA.5)"
-                    },
-                    "IR.4": {
-                      "index": 20,
-                      "text": "Incident Handling (IR.4)"
-                    },
-                    "RA.5": {
-                      "index": 21,
-                      "text": "Vulnerability Scanning (RA.5)"
-                    },
-                    "SC.5": {
-                      "index": 22,
-                      "text": "Denial of Service Protection (SC.5)"
-                    },
-                    "SC.7": {
-                      "index": 23,
-                      "text": "Boundary Protection (SC.7)"
-                    },
-                    "SC.8": {
-                      "index": 24,
-                      "text": "Transmission Confidentiality (SC.8)"
-                    },
-                    "SI.10": {
-                      "index": 29,
-                      "text": "Information Input Validation (SI.10)"
-                    },
-                    "SI.11": {
-                      "index": 30,
-                      "text": "Error Handling (SI.11)"
-                    },
-                    "SI.2": {
-                      "index": 25,
-                      "text": "Flaw Remediation (SI.2)"
-                    },
-                    "SI.3": {
-                      "index": 26,
-                      "text": "Malicious Code Protection (SI.3)"
-                    },
-                    "SI.4": {
-                      "index": 27,
-                      "text": "Information System Monitoring (SI.4)"
-                    },
-                    "SI.7": {
-                      "index": 28,
-                      "text": "Software & Info Integrity (SI.7)"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": [
-              {
-                "__systemRef": "hideSeriesFrom",
-                "matcher": {
-                  "id": "byNames",
-                  "options": {
-                    "mode": "exclude",
-                    "names": [
-                      "Count"
-                    ],
-                    "prefix": "All except:",
-                    "readOnly": true
-                  }
-                },
-                "properties": [
-                  {
-                    "id": "custom.hideFrom",
-                    "value": {
-                      "legend": false,
-                      "tooltip": true,
-                      "viz": true
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          "gridPos": {
-            "h": 12,
-            "w": 12,
-            "x": 0,
-            "y": 21
-          },
-          "id": 25,
-          "options": {
-            "displayLabels": [
-              "percent"
-            ],
-            "legend": {
-              "calcs": [],
-              "displayMode": "table",
-              "placement": "right",
-              "showLegend": true,
-              "values": []
-            },
-            "pieType": "donut",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": true
-            },
-            "sort": "desc",
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.3.1",
-          "targets": [
-            {
-              "alias": "",
-              "bucketAggs": [
-                {
-                  "field": "rule.nist_800_53",
-                  "id": "7",
-                  "settings": {
-                    "min_doc_count": "0",
-                    "order": "desc",
-                    "orderBy": "_term",
-                    "size": "0"
-                  },
-                  "type": "terms"
-                }
-              ],
-              "datasource": {
-                "type": "grafana-opensearch-datasource",
-                "uid": "wazuh-alerts"
-              },
-              "format": "table",
-              "luceneQueryType": "Metric",
-              "metrics": [
-                {
-                  "id": "1",
-                  "type": "count"
-                }
-              ],
-              "query": "",
-              "queryType": "lucene",
-              "refId": "Severity",
-              "serviceMap": true,
-              "timeField": "@timestamp"
-            }
-          ],
-          "title": "NIST 800.53 Agent Count",
-          "type": "piechart"
-        },
-        {
-          "datasource": {
-            "type": "grafana-opensearch-datasource",
-            "uid": "wazuh-alerts"
-          },
-          "description": "Shows security alerts related to Data Privacy laws (GDPR) to highlight potential issues with personal data protection.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                }
-              },
-              "mappings": [
-                {
-                  "options": {
-                    "III_13.1": {
-                      "index": 11,
-                      "text": "Data Collection Info Missing (III_13.1)"
-                    },
-                    "III_14.1": {
-                      "index": 3,
-                      "text": "User Notification Issue (III_14.1)"
-                    },
-                    "II_5.1.a": {
-                      "index": 18,
-                      "text": "Unfair/Illegal Processing (II_5.1.a)"
-                    },
-                    "II_5.1.b": {
-                      "index": 17,
-                      "text": "Data Misuse Risk (II_5.1.b)"
-                    },
-                    "II_5.1.c": {
-                      "index": 16,
-                      "text": "Excessive Data Collection (II_5.1.c)"
-                    },
-                    "II_5.1.d": {
-                      "index": 15,
-                      "text": "Data Accuracy Issue (II_5.1.d)"
-                    },
-                    "II_5.1.e": {
-                      "index": 14,
-                      "text": "Old Data Retention Issue (II_5.1.e)"
-                    },
-                    "II_5.1.f": {
-                      "index": 0,
-                      "text": "Unauthorized Data Changes (II_5.1.f)"
-                    },
-                    "IV_22.1": {
-                      "index": 13,
-                      "text": "Automated Decision Risk (IV_22.1)"
-                    },
-                    "IV_24.1": {
-                      "index": 7,
-                      "text": "Admin Responsibility Issue (IV_24.1)"
-                    },
-                    "IV_25.2": {
-                      "index": 6,
-                      "text": "Insecure Default Settings (IV_25.2)"
-                    },
-                    "IV_28": {
-                      "index": 8,
-                      "text": "Third-Party Security Risk (IV_28)"
-                    },
-                    "IV_29": {
-                      "index": 19,
-                      "text": "Unauthorized Access (IV_29)"
-                    },
-                    "IV_30.1.g": {
-                      "index": 4,
-                      "text": "Missing Activity Logs (IV_30.1.g)"
-                    },
-                    "IV_30.2": {
-                      "index": 12,
-                      "text": "Processor Log Failure (IV_30.2)"
-                    },
-                    "IV_32.1": {
-                      "index": 9,
-                      "text": "Encryption/Security Failure (IV_32.1)"
-                    },
-                    "IV_32.2": {
-                      "index": 2,
-                      "text": "System Security Risk (IV_32.2)"
-                    },
-                    "IV_32.4": {
-                      "index": 10,
-                      "text": "Regular Security Review (IV_32.4)"
-                    },
-                    "IV_35.1": {
-                      "index": 5,
-                      "text": "High Risk Processing (IV_35.1)"
-                    },
-                    "IV_35.7.d": {
-                      "index": 1,
-                      "text": "Security Check Failure (IV_35.7.d)"
-                    }
-                  },
-                  "type": "value"
-                }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 12,
-            "w": 12,
-            "x": 12,
-            "y": 21
-          },
-          "id": 204,
-          "options": {
-            "displayLabels": [
-              "percent"
-            ],
-            "legend": {
-              "displayMode": "table",
-              "placement": "right",
-              "showLegend": true
-            },
-            "pieType": "donut",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "/^Count$/",
-              "values": true
-            },
-            "sort": "desc",
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.3.1",
-          "targets": [
-            {
-              "bucketAggs": [
-                {
-                  "field": "rule.gdpr",
-                  "id": "7",
-                  "settings": {
-                    "min_doc_count": "0",
-                    "order": "desc",
-                    "orderBy": "_term",
-                    "size": "0"
-                  },
-                  "type": "terms"
-                }
-              ],
-              "datasource": {
-                "type": "grafana-opensearch-datasource",
-                "uid": "wazuh-alerts"
-              },
-              "metrics": [
-                {
-                  "id": "1",
-                  "type": "count"
-                }
-              ],
-              "query": "",
-              "refId": "A",
-              "timeField": "@timestamp"
-            }
-          ],
-          "title": "GDPR Compliance Rules",
-          "type": "piechart"
-        }
-      ],
-      "title": "GPDR and NIST Compliance Summary",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 21
-      },
-      "id": 200,
-      "panels": [
-        {
-          "datasource": {
-            "type": "grafana-opensearch-datasource",
-            "uid": "wazuh-alerts"
-          },
-          "description": "Categorizes threats by 'hacker tactics' (MITRE ATT&CK) to show what types of attacks are occurring (e.g. stealing credentials vs deleting files).",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                }
-              },
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 12,
-            "w": 12,
-            "x": 0,
-            "y": 22
-          },
-          "id": 203,
-          "options": {
-            "displayLabels": [
-              "percent"
-            ],
-            "legend": {
-              "displayMode": "table",
-              "placement": "right",
-              "showLegend": true
-            },
-            "pieType": "donut",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "/^Count$/",
-              "values": true
-            },
-            "sort": "desc",
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.3.1",
-          "targets": [
-            {
-              "bucketAggs": [
-                {
-                  "field": "rule.mitre.technique",
-                  "id": "7",
-                  "settings": {
-                    "min_doc_count": "0",
-                    "order": "desc",
-                    "orderBy": "_term",
-                    "size": "0"
-                  },
-                  "type": "terms"
-                }
-              ],
-              "datasource": {
-                "type": "grafana-opensearch-datasource",
-                "uid": "wazuh-alerts"
-              },
-              "metrics": [
-                {
-                  "id": "1",
-                  "type": "count"
-                }
-              ],
-              "query": "",
-              "refId": "A",
-              "timeField": "@timestamp"
-            }
-          ],
-          "title": "Compliance Summary (MITRE ID)",
-          "type": "piechart"
-        },
-        {
-          "datasource": {
-            "type": "grafana-opensearch-datasource",
-            "uid": "wazuh-alerts"
-          },
-          "description": "Mitre Tactic",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                }
-              },
-              "mappings": []
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 12,
-            "w": 12,
-            "x": 12,
-            "y": 22
-          },
-          "id": 26,
-          "options": {
-            "displayLabels": [
-              "percent"
-            ],
-            "legend": {
-              "calcs": [],
-              "displayMode": "table",
-              "placement": "right",
-              "showLegend": true,
-              "values": []
-            },
-            "pieType": "donut",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": true
-            },
-            "sort": "desc",
-            "tooltip": {
-              "hideZeros": false,
-              "maxHeight": 600,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "12.3.1",
-          "targets": [
-            {
-              "alias": "",
-              "bucketAggs": [
-                {
-                  "field": "rule.mitre.tactic",
-                  "id": "7",
-                  "settings": {
-                    "min_doc_count": "0",
-                    "order": "desc",
-                    "orderBy": "_term",
-                    "size": "0"
-                  },
-                  "type": "terms"
-                }
-              ],
-              "datasource": {
-                "type": "grafana-opensearch-datasource",
-                "uid": "wazuh-alerts"
-              },
-              "format": "table",
-              "luceneQueryType": "Metric",
-              "metrics": [
-                {
-                  "id": "1",
-                  "type": "count"
-                }
-              ],
-              "query": "",
-              "queryType": "lucene",
-              "refId": "Severity",
-              "serviceMap": true,
-              "timeField": "@timestamp"
-            }
-          ],
-          "title": "Mitre Tactic",
-          "type": "piechart"
-        }
-      ],
-      "title": "MITRE Compliance Summary",
-      "type": "row"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 59
       },
-      "id": 300,
+      "id": 205,
       "panels": [],
-      "title": "Tier 1: The Essentials",
+      "title": "GPDR and NIST Compliance Summary",
       "type": "row"
     },
     {
@@ -1743,79 +1996,387 @@
         "type": "grafana-opensearch-datasource",
         "uid": "wazuh-alerts"
       },
-      "description": "Critical. This is the heartbeat of your SOC. It contains all rule-based detections, including your Suricata logs.",
+      "description": "Shows security alerts mapped to NIST standards (government security rules), highlighting areas like Login Security, System Monitoring, and Network Defense.",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "showValues": false,
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
             }
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
+          "mappings": [
+            {
+              "options": {
+                "AC.1": {
+                  "index": 0,
+                  "text": "Access Control Policy (AC.1)"
+                },
+                "AC.2": {
+                  "index": 1,
+                  "text": "Account Management (AC.2)"
+                },
+                "AC.3": {
+                  "index": 2,
+                  "text": "Access Enforcement (AC.3)"
+                },
+                "AC.4": {
+                  "index": 3,
+                  "text": "Information Flow Enforcement (AC.4)"
+                },
+                "AC.6": {
+                  "index": 4,
+                  "text": "Least Privilege (AC.6)"
+                },
+                "AC.7": {
+                  "index": 5,
+                  "text": "Unsuccessful Login Attempts (AC.7)"
+                },
+                "AU.12": {
+                  "index": 9,
+                  "text": "Audit Generation (AU.12)"
+                },
+                "AU.14": {
+                  "index": 10,
+                  "text": "Session Audit (AU.14)"
+                },
+                "AU.2": {
+                  "index": 6,
+                  "text": "Audit Events (AU.2)"
+                },
+                "AU.3": {
+                  "index": 7,
+                  "text": "Content of Audit Records (AU.3)"
+                },
+                "AU.6": {
+                  "index": 8,
+                  "text": "Audit Review, Analysis (AU.6)"
+                },
+                "CA.7": {
+                  "index": 11,
+                  "text": "Continuous Monitoring (CA.7)"
+                },
+                "CM.1": {
+                  "index": 12,
+                  "text": "Configuration Management Policy (CM.1)"
+                },
+                "CM.2": {
+                  "index": 13,
+                  "text": "Baseline Configuration (CM.2)"
+                },
+                "CM.3": {
+                  "index": 14,
+                  "text": "Configuration Change Control (CM.3)"
+                },
+                "CM.6": {
+                  "index": 15,
+                  "text": "Configuration Settings (CM.6)"
+                },
+                "CP.2": {
+                  "index": 16,
+                  "text": "Contingency Plan (CP.2)"
+                },
+                "IA.2": {
+                  "index": 17,
+                  "text": "Identification & Authentication (IA.2)"
+                },
+                "IA.4": {
+                  "index": 18,
+                  "text": "Identifier Management (IA.4)"
+                },
+                "IA.5": {
+                  "index": 19,
+                  "text": "Authenticator Management (IA.5)"
+                },
+                "IR.4": {
+                  "index": 20,
+                  "text": "Incident Handling (IR.4)"
+                },
+                "RA.5": {
+                  "index": 21,
+                  "text": "Vulnerability Scanning (RA.5)"
+                },
+                "SC.5": {
+                  "index": 22,
+                  "text": "Denial of Service Protection (SC.5)"
+                },
+                "SC.7": {
+                  "index": 23,
+                  "text": "Boundary Protection (SC.7)"
+                },
+                "SC.8": {
+                  "index": 24,
+                  "text": "Transmission Confidentiality (SC.8)"
+                },
+                "SI.10": {
+                  "index": 29,
+                  "text": "Information Input Validation (SI.10)"
+                },
+                "SI.11": {
+                  "index": 30,
+                  "text": "Error Handling (SI.11)"
+                },
+                "SI.2": {
+                  "index": 25,
+                  "text": "Flaw Remediation (SI.2)"
+                },
+                "SI.3": {
+                  "index": 26,
+                  "text": "Malicious Code Protection (SI.3)"
+                },
+                "SI.4": {
+                  "index": 27,
+                  "text": "Information System Monitoring (SI.4)"
+                },
+                "SI.7": {
+                  "index": 28,
+                  "text": "Software & Info Integrity (SI.7)"
+                }
               },
+              "type": "value"
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "Count"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
               {
-                "color": "red",
-                "value": 80
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": true,
+                  "viz": true
+                }
               }
             ]
           }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 0,
+        "y": 60
+      },
+      "id": 25,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": []
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "rule.nist_800_53",
+              "id": "7",
+              "settings": {
+                "min_doc_count": "0",
+                "order": "desc",
+                "orderBy": "_term",
+                "size": "0"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "wazuh-alerts"
+          },
+          "format": "table",
+          "luceneQueryType": "Metric",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "",
+          "queryType": "lucene",
+          "refId": "Severity",
+          "serviceMap": true,
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "NIST 800.53 Agent Count",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-alerts"
+      },
+      "description": "Shows security alerts related to Data Privacy laws (GDPR) to highlight potential issues with personal data protection.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [
+            {
+              "options": {
+                "III_13.1": {
+                  "index": 11,
+                  "text": "Data Collection Info Missing (III_13.1)"
+                },
+                "III_14.1": {
+                  "index": 3,
+                  "text": "User Notification Issue (III_14.1)"
+                },
+                "II_5.1.a": {
+                  "index": 18,
+                  "text": "Unfair/Illegal Processing (II_5.1.a)"
+                },
+                "II_5.1.b": {
+                  "index": 17,
+                  "text": "Data Misuse Risk (II_5.1.b)"
+                },
+                "II_5.1.c": {
+                  "index": 16,
+                  "text": "Excessive Data Collection (II_5.1.c)"
+                },
+                "II_5.1.d": {
+                  "index": 15,
+                  "text": "Data Accuracy Issue (II_5.1.d)"
+                },
+                "II_5.1.e": {
+                  "index": 14,
+                  "text": "Old Data Retention Issue (II_5.1.e)"
+                },
+                "II_5.1.f": {
+                  "index": 0,
+                  "text": "Unauthorized Data Changes (II_5.1.f)"
+                },
+                "IV_22.1": {
+                  "index": 13,
+                  "text": "Automated Decision Risk (IV_22.1)"
+                },
+                "IV_24.1": {
+                  "index": 7,
+                  "text": "Admin Responsibility Issue (IV_24.1)"
+                },
+                "IV_25.2": {
+                  "index": 6,
+                  "text": "Insecure Default Settings (IV_25.2)"
+                },
+                "IV_28": {
+                  "index": 8,
+                  "text": "Third-Party Security Risk (IV_28)"
+                },
+                "IV_29": {
+                  "index": 19,
+                  "text": "Unauthorized Access (IV_29)"
+                },
+                "IV_30.1.g": {
+                  "index": 4,
+                  "text": "Missing Activity Logs (IV_30.1.g)"
+                },
+                "IV_30.2": {
+                  "index": 12,
+                  "text": "Processor Log Failure (IV_30.2)"
+                },
+                "IV_32.1": {
+                  "index": 9,
+                  "text": "Encryption/Security Failure (IV_32.1)"
+                },
+                "IV_32.2": {
+                  "index": 2,
+                  "text": "System Security Risk (IV_32.2)"
+                },
+                "IV_32.4": {
+                  "index": 10,
+                  "text": "Regular Security Review (IV_32.4)"
+                },
+                "IV_35.1": {
+                  "index": 5,
+                  "text": "High Risk Processing (IV_35.1)"
+                },
+                "IV_35.7.d": {
+                  "index": 1,
+                  "text": "Security Check Failure (IV_35.7.d)"
+                }
+              },
+              "type": "value"
+            }
+          ]
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 23
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 60
       },
-      "id": 301,
+      "id": 204,
       "options": {
+        "displayLabels": [
+          "percent"
+        ],
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
+          "displayMode": "table",
+          "placement": "right",
           "showLegend": true
         },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Count$/",
+          "values": true
+        },
+        "sort": "desc",
         "tooltip": {
           "hideZeros": false,
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         }
@@ -1825,27 +2386,230 @@
         {
           "bucketAggs": [
             {
-              "field": "@timestamp",
-              "id": "2",
+              "field": "rule.gdpr",
+              "id": "7",
               "settings": {
-                "interval": "auto"
+                "min_doc_count": "0",
+                "order": "desc",
+                "orderBy": "_term",
+                "size": "0"
               },
-              "type": "date_histogram"
+              "type": "terms"
             }
           ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "wazuh-alerts"
+          },
           "metrics": [
             {
               "id": "1",
               "type": "count"
             }
           ],
-          "query": "*",
+          "query": "",
           "refId": "A",
           "timeField": "@timestamp"
         }
       ],
-      "title": "Wazuh Alerts (Essentials)",
-      "type": "timeseries"
+      "title": "GDPR Compliance Rules",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 72
+      },
+      "id": 200,
+      "panels": [],
+      "title": "MITRE Compliance Summary",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-alerts"
+      },
+      "description": "Categorizes threats by 'hacker tactics' (MITRE ATT&CK) to show what types of attacks are occurring (e.g. stealing credentials vs deleting files).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 0,
+        "y": 73
+      },
+      "id": 203,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Count$/",
+          "values": true
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "rule.mitre.technique",
+              "id": "7",
+              "settings": {
+                "min_doc_count": "0",
+                "order": "desc",
+                "orderBy": "_term",
+                "size": "0"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "wazuh-alerts"
+          },
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "",
+          "refId": "A",
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Compliance Summary (MITRE ID)",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-alerts"
+      },
+      "description": "Mitre Tactic",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 12,
+        "x": 12,
+        "y": 73
+      },
+      "id": 26,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": []
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "sort": "desc",
+        "tooltip": {
+          "hideZeros": false,
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "alias": "",
+          "bucketAggs": [
+            {
+              "field": "rule.mitre.tactic",
+              "id": "7",
+              "settings": {
+                "min_doc_count": "0",
+                "order": "desc",
+                "orderBy": "_term",
+                "size": "0"
+              },
+              "type": "terms"
+            }
+          ],
+          "datasource": {
+            "type": "grafana-opensearch-datasource",
+            "uid": "wazuh-alerts"
+          },
+          "format": "table",
+          "luceneQueryType": "Metric",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "",
+          "queryType": "lucene",
+          "refId": "Severity",
+          "serviceMap": true,
+          "timeField": "@timestamp"
+        }
+      ],
+      "title": "Mitre Tactic",
+      "type": "piechart"
     },
     {
       "datasource": {
@@ -1875,8 +2639,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 8,
-        "y": 23
+        "x": 5,
+        "y": 85
       },
       "id": 302,
       "options": {
@@ -1926,20 +2690,134 @@
         "type": "grafana-opensearch-datasource",
         "uid": "wazuh-vulnerabilities"
       },
-      "description": "High Value. This provides a 'Current State' view of your network's risk. Essential for prioritizing patching.",
+      "description": "",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 100
+              },
+              {
+                "color": "#EF843C",
+                "value": 200
+              },
+              {
+                "color": "#EAB839",
+                "value": 400
+              },
+              {
+                "color": "red",
+                "value": 800
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 13,
+        "y": 85
+      },
+      "id": 303,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "bucketAggs": [
+            {
+              "field": "vulnerability.detected_at",
+              "id": "2",
+              "settings": {
+                "interval": "auto",
+                "min_doc_count": "0",
+                "trimEdges": "0"
+              },
+              "type": "date_histogram"
+            }
+          ],
+          "luceneQueryType": "Metric",
+          "metrics": [
+            {
+              "id": "1",
+              "type": "count"
+            }
+          ],
+          "query": "NOT vulnerability.under_evaluation: true AND vulnerability.severity: (\"High\" OR \"Critical\") AND NOT package.name: linux-image*",
+          "refId": "A",
+          "timeField": "vulnerability.detected_at"
+        }
+      ],
+      "title": "Total Vulnerabilities ",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-opensearch-datasource",
+        "uid": "wazuh-vulnerabilities"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "custom": {
             "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
             "footer": {
-              "reducers": []
+              "reducers": [
+                "distinctCount"
+              ]
             },
-            "inspect": false
+            "inspect": false,
+            "wrapText": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "Critical": {
+                  "color": "dark-red",
+                  "index": 1
+                },
+                "High": {
+                  "color": "dark-orange",
+                  "index": 0
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -1954,46 +2832,136 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Severity"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 23
+        "y": 85
       },
-      "id": 303,
+      "id": 502,
       "options": {
         "cellHeight": "sm",
-        "showHeader": true
+        "enablePagination": true,
+        "frameIndex": 0,
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Severity"
+          }
+        ]
       },
       "pluginVersion": "12.3.1",
       "targets": [
         {
           "bucketAggs": [
             {
-              "field": "title",
+              "field": "package.name",
               "id": "2",
               "settings": {
+                "execution_hint": "map",
+                "min_doc_count": "1",
                 "order": "desc",
-                "orderBy": "_count",
+                "orderBy": "1",
                 "size": "10"
               },
               "type": "terms"
             }
           ],
+          "luceneQueryType": "RawData",
           "metrics": [
             {
               "id": "1",
-              "type": "count"
+              "settings": {
+                "order": "desc",
+                "size": "500",
+                "useTimeRange": false
+              },
+              "type": "raw_data"
             }
           ],
-          "query": "severity:High OR severity:Critical",
+          "query": "NOT vulnerability.under_evaluation: true AND vulnerability.severity: (\"High\" OR \"Critical\") AND NOT package.name: linux-image*",
           "refId": "A",
-          "timeField": "timestamp"
+          "timeField": "vulnerability.detected_at"
         }
       ],
       "title": "Wazuh Vulnerabilities (Risk)",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "A": false,
+              "_id": true,
+              "_index": true,
+              "_type": true,
+              "agent.id": true,
+              "agent.name": false,
+              "agent.type": true,
+              "agent.version": true,
+              "host.os.full": true,
+              "host.os.kernel": true,
+              "host.os.name": true,
+              "host.os.platform": true,
+              "host.os.type": true,
+              "host.os.version": true,
+              "package.architecture": true,
+              "package.description": true,
+              "package.size": true,
+              "package.type": true,
+              "package.version": true,
+              "vulnerability.category": true,
+              "vulnerability.classification": true,
+              "vulnerability.description": true,
+              "vulnerability.detected_at": true,
+              "vulnerability.enumeration": true,
+              "vulnerability.id": true,
+              "vulnerability.published_at": true,
+              "vulnerability.reference": true,
+              "vulnerability.scanner.condition": true,
+              "vulnerability.scanner.reference": true,
+              "vulnerability.scanner.source": true,
+              "vulnerability.scanner.vendor": true,
+              "vulnerability.score.base": true,
+              "vulnerability.score.version": true,
+              "vulnerability.under_evaluation": true,
+              "wazuh.cluster.name": true,
+              "wazuh.schema.version": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "orderBy": [],
+            "orderByMode": "manual",
+            "renameByName": {
+              "A": "",
+              "_index": "",
+              "agent.id": "",
+              "agent.name": "Devices",
+              "package.name": "Vulnerable Packages",
+              "package.size": "",
+              "package.version": "",
+              "vulnerability.severity": "Severity"
+            }
+          }
+        }
+      ],
       "type": "table"
     },
     {
@@ -2002,7 +2970,20 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 93
+      },
+      "id": 300,
+      "panels": [],
+      "title": "Tier 1: The Essentials",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 94
       },
       "id": 400,
       "panels": [],
@@ -2010,329 +2991,17 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "grafana-opensearch-datasource",
-        "uid": "wazuh-inventory-ports"
-      },
-      "description": "Excellent for spotting unauthorized open ports (e.g., SSH, RDP).",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 32
-      },
-      "id": 401,
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "bucketAggs": [
-            {
-              "field": "local_port",
-              "id": "2",
-              "settings": {
-                "size": "10"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "protocol",
-              "id": "3",
-              "type": "terms"
-            }
-          ],
-          "metrics": [
-            {
-              "id": "1",
-              "type": "count"
-            }
-          ],
-          "query": "*",
-          "refId": "A",
-          "timeField": "timestamp"
-        }
-      ],
-      "title": "Inventory Ports (Unauthorized Open)",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "grafana-opensearch-datasource",
-        "uid": "wazuh-inventory-packages"
-      },
-      "description": "Use this to see if unauthorized software is being installed.",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 32
-      },
-      "id": 402,
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "bucketAggs": [
-            {
-              "field": "name",
-              "id": "2",
-              "settings": {
-                "size": "20"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "version",
-              "id": "3",
-              "type": "terms"
-            }
-          ],
-          "metrics": [
-            {
-              "id": "1",
-              "type": "count"
-            }
-          ],
-          "query": "*",
-          "refId": "A",
-          "timeField": "timestamp"
-        }
-      ],
-      "title": "Inventory Packages (Unauthorized Software)",
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "grafana-opensearch-datasource",
-        "uid": "wazuh-inventory-system"
-      },
-      "description": "Useful for basic asset identification (Hostname, OS, Architecture).",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 32
-      },
-      "id": 403,
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "bucketAggs": [
-            {
-              "field": "hostname",
-              "id": "2",
-              "settings": {
-                "size": "10"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "os.name",
-              "id": "3",
-              "type": "terms"
-            }
-          ],
-          "metrics": [
-            {
-              "id": "1",
-              "type": "count"
-            }
-          ],
-          "query": "*",
-          "refId": "A",
-          "timeField": "timestamp"
-        }
-      ],
-      "title": "Inventory System (Assets)",
-      "type": "table"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 95
       },
       "id": 500,
       "panels": [],
       "title": "Tier 3: Selective Use",
       "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "grafana-opensearch-datasource",
-        "uid": "wazuh-inventory-users"
-      },
-      "description": "Tracks who has local admin rights or which accounts are active.",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "footer": {
-              "reducers": []
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 41
-      },
-      "id": 501,
-      "options": {
-        "cellHeight": "sm",
-        "showHeader": true
-      },
-      "pluginVersion": "12.3.1",
-      "targets": [
-        {
-          "bucketAggs": [
-            {
-              "field": "name",
-              "id": "2",
-              "settings": {
-                "size": "10"
-              },
-              "type": "terms"
-            },
-            {
-              "field": "group",
-              "id": "3",
-              "type": "terms"
-            }
-          ],
-          "metrics": [
-            {
-              "id": "1",
-              "type": "count"
-            }
-          ],
-          "query": "*",
-          "refId": "A",
-          "timeField": "timestamp"
-        }
-      ],
-      "title": "Inventory Users (Privileges)",
-      "type": "table"
     }
   ],
   "preload": false,
@@ -2343,15 +3012,73 @@
     "siem"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "baseFilters": [],
+        "datasource": {
+          "type": "grafana-opensearch-datasource",
+          "uid": "wazuh-vulnerabilities"
+        },
+        "filters": [],
+        "name": "Filters",
+        "type": "adhoc"
+      },
+      {
+        "allValue": "All devices",
+        "allowCustomValue": true,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "yesoreyeram-infinity-datasource",
+          "uid": "wazuh-inventory"
+        },
+        "definition": "",
+        "includeAll": true,
+        "name": "agent_name",
+        "options": [],
+        "query": {
+          "infinityQuery": {
+            "columns": [
+              {
+                "selector": "_source.agent.name",
+                "text": "Device name",
+                "type": "string"
+              }
+            ],
+            "data": "{\n  \"size\": 100,\n  \"query\": { \"match_all\": {} },\n  \"_source\": [\"agent.name\"]\n}",
+            "filters": [],
+            "format": "table",
+            "parser": "backend",
+            "refId": "",
+            "root_selector": "hits.hits",
+            "source": "url",
+            "type": "json",
+            "url": "https://192.168.64.12:9200/wazuh-states-inventory-*/_search",
+            "url_options": {
+              "body_content_type": "text/plain",
+              "body_type": "raw",
+              "data": "{\n  \"size\": 100,\n  \"query\": { \"match_all\": {} },\n  \"_source\": [\"agent.name\"]\n}",
+              "method": "GET"
+            }
+          },
+          "queryType": "infinity",
+          "refId": "variable"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      }
+    ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Security Dashboard",
   "uid": "54540",
-  "version": 1
+  "version": 2
 }

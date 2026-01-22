@@ -64,86 +64,14 @@ datasources:
       logMessageField: "vulnerability.id"
       logLevelField: "vulnerability.severity"
 
-  - name: Wazuh Inventory Ports
-    type: grafana-opensearch-datasource
-    uid: wazuh-inventory-ports
+  - name: Wazuh Inventory (Infinity)
+    type: yesoreyeram-infinity-datasource
+    uid: wazuh-inventory
     url: https://{{ wazuh_manager_ip | default('127.0.0.1') }}:9200
     access: proxy
     basicAuth: true
     basicAuthUser: admin
     secureJsonData:
       basicAuthPassword: "{{ wazuh_admin_password }}"
-    editable: true
     jsonData:
-      database: "wazuh-states-inventory-ports-*"
-      indexName: "wazuh-states-inventory-ports-*"
-      timeField: "timestamp"
-      flavor: "Opensearch"
-      version: "2.16.0"
-      pplEnabled: true
       tlsSkipVerify: true
-      logMessageField: "rule.description"
-      logLevelField: "rule.level"
-
-  - name: Wazuh Inventory Packages
-    type: grafana-opensearch-datasource
-    uid: wazuh-inventory-packages
-    url: https://{{ wazuh_manager_ip | default('127.0.0.1') }}:9200
-    access: proxy
-    basicAuth: true
-    basicAuthUser: admin
-    secureJsonData:
-      basicAuthPassword: "{{ wazuh_admin_password }}"
-    editable: true
-    jsonData:
-      database: "wazuh-states-inventory-packages-*"
-      indexName: "wazuh-states-inventory-packages-*"
-      timeField: "timestamp"
-      flavor: "Opensearch"
-      version: "2.16.0"
-      pplEnabled: true
-      tlsSkipVerify: true
-      logMessageField: "rule.description"
-      logLevelField: "rule.level"
-
-  - name: Wazuh Inventory System
-    type: grafana-opensearch-datasource
-    uid: wazuh-inventory-system
-    url: https://{{ wazuh_manager_ip | default('127.0.0.1') }}:9200
-    access: proxy
-    basicAuth: true
-    basicAuthUser: admin
-    secureJsonData:
-      basicAuthPassword: "{{ wazuh_admin_password }}"
-    editable: true
-    jsonData:
-      database: "wazuh-states-inventory-system-*"
-      indexName: "wazuh-states-inventory-system-*"
-      timeField: "timestamp"
-      flavor: "Opensearch"
-      version: "2.16.0"
-      pplEnabled: true
-      tlsSkipVerify: true
-      logMessageField: "rule.description"
-      logLevelField: "rule.level"
-
-  - name: Wazuh Inventory Users
-    type: grafana-opensearch-datasource
-    uid: wazuh-inventory-users
-    url: https://{{ wazuh_manager_ip | default('127.0.0.1') }}:9200
-    access: proxy
-    basicAuth: true
-    basicAuthUser: admin
-    secureJsonData:
-      basicAuthPassword: "{{ wazuh_admin_password }}"
-    editable: true
-    jsonData:
-      database: "wazuh-states-inventory-users-*"
-      indexName: "wazuh-states-inventory-users-*"
-      timeField: "timestamp"
-      flavor: "Opensearch"
-      version: "2.16.0"
-      pplEnabled: true
-      tlsSkipVerify: true
-      logMessageField: "rule.description"
-      logLevelField: "rule.level"
