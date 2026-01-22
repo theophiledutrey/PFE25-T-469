@@ -58,6 +58,7 @@
         content: "{{ installation_log['content'] | b64decode }}"
         dest: "{{ playbook_dir }}/../logs/wazuh_indexer_{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}.log"
       delegate_to: localhost
+      become: false
       when: installation_log is success
 
     - name: Fail task after saving log

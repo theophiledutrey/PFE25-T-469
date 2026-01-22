@@ -73,6 +73,24 @@
   ignore_errors: yes
   failed_when: false
 
+- name: Fix broken package system
+  shell: dpkg --configure -a && apt-get install -f -y
+  ignore_errors: yes
+
+- name: Force kill related processes
+  shell: |
+    pkill -9 -u wazuh-indexer || true
+    pkill -9 -u wazuh-dashboard || true
+    pkill -9 -u wazuh || true
+    pkill -9 -f wazuh-agent || true
+    pkill -9 -f filebeat || true
+    pkill -9 -f grafana || true
+  ignore_errors: yes
+
+- name: Nuke broken package scripts (Force Uninstall)
+  shell: rm -f /var/lib/dpkg/info/wazuh-*.prerm /var/lib/dpkg/info/wazuh-*.postrm /var/lib/dpkg/info/filebeat.prerm /var/lib/dpkg/info/filebeat.postrm /var/lib/dpkg/info/grafana*.prerm /var/lib/dpkg/info/grafana*.postrm
+  ignore_errors: yes
+
 - name: Remove Wazuh packages
   apt:
     name:

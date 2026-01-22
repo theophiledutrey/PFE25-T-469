@@ -170,7 +170,7 @@ def show_dashboard():
                                 wazuh_refs['label'] = status_label
                                 wazuh_refs['spinner'] = spinner
 
-                    ui.button('Open').props(f'flat dense size=sm href=https://{manager_ip} target=_blank').classes('text-sky-400')
+                    ui.button('Open').props(f'flat dense size=sm href=http://{manager_ip}:3000/d/54540/security-dashboard target=_blank').classes('text-sky-400')
 
                 # Managers Box
                 with ui.row().classes('w-full bg-sky-500/5 border border-sky-500/10 rounded-xl p-4 items-center gap-4'):

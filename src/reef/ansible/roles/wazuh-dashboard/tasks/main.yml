@@ -38,12 +38,14 @@
         state: directory
       delegate_to: localhost
       run_once: true
+      become: false
 
     - name: Save Wazuh installation log to controller
       copy:
         content: "{{ installation_log['content'] | b64decode }}"
         dest: "{{ playbook_dir }}/../logs/wazuh_dashboard_error_{{ lookup('pipe', 'date +%Y%m%d_%H%M%S') }}.log"
       delegate_to: localhost
+      become: false
       when: installation_log is success
 
     - name: Fail task after saving log
