@@ -3,7 +3,7 @@ from reef.manager.core import SchemaManager, update_yaml_config_from_schema, upd
 from reef.manager.ui_utils import page_header, card_style
 
 def show_configuration():
-    page_header("Configuration", "Configure deployment variables")
+    page_header("Settings", "Configure your security environment")
     
     schema_file = BASE_DIR / "config.schema.yml"
     schema_mgr = SchemaManager(schema_file)
@@ -66,14 +66,14 @@ def show_configuration():
                             is_password = 'password' in var_name or 'secret' in var_name
                             form_inputs[var_name] = ui.input(desc, value=str(default_val) if default_val else "", password=is_password).classes('w-full text-slate-300')
 
-        ui.button("Save Configuration", on_click=save_config).classes('bg-indigo-600 w-full')
+        ui.button("Save Settings", on_click=save_config).classes('bg-indigo-600 w-full')
 
     # --- Agents Inventory Section ---
     ui.separator().classes('my-8 bg-slate-700')
     
     with ui.column().classes(card_style() + ' w-full'):
-        ui.label("Agent Inventory").classes('text-xl font-bold text-slate-200 mb-2')
-        ui.markdown("Agent IPs and Credentials for `hosts.ini` generation (Required for deployment).").classes('text-slate-400 mb-6')
+        ui.label("Computer Inventory").classes('text-xl font-bold text-slate-200 mb-2')
+        ui.markdown("List the computers you want to protect. You need to provide their IP address and login credentials so the system can install the necessary software.").classes('text-slate-400 mb-6')
 
         if GROUP_VARS_FILE.exists():
             # Reload to get fresh count if it changed
@@ -124,7 +124,7 @@ def show_configuration():
                 
                 with ui.column().classes('gap-4 w-full'):
                     for i in range(count):
-                        ui.label(f"Agent {i+1}").classes('font-bold text-slate-300 mt-2')
+                        ui.label(f"Computer {i+1}").classes('font-bold text-slate-300 mt-2')
                         
                         def_ip = existing_agents[i]['ip'] if i < len(existing_agents) else ""
                         def_user = existing_agents[i]['user'] if i < len(existing_agents) else "root"
@@ -149,8 +149,8 @@ def show_configuration():
                         # To save space, assuming defaults or previous values if known.
                         # Real implementation should probably have a proper parser utility.
                         
-                    mgr_user_in = ui.input("Manager SSH User", value=ex_mgr_user).classes('w-full')
-                    mgr_pass_in = ui.input("Manager SSH Password", value=ex_mgr_pw, password=True).classes('w-full')
+                    mgr_user_in = ui.input("Security Server Login User", value=ex_mgr_user).classes('w-full')
+                    mgr_pass_in = ui.input("Security Server Login Password", value=ex_mgr_pw, password=True).classes('w-full')
 
                     def save_inventory():
                         # Collect data
@@ -166,6 +166,6 @@ def show_configuration():
                         if update_ini_inventory(mgr_ip, mgr_user_in.value, mgr_pass_in.value, agents_data):
                             ui.notify("Inventory updated!", type='positive')
 
-                    ui.button("Update Inventory (hosts.ini)", on_click=save_inventory).classes('bg-emerald-600 w-full mt-4')
+                    ui.button("Save Computer List", on_click=save_inventory).classes('bg-emerald-600 w-full mt-4')
             else:
                  ui.label("Set 'endpoint_count' > 0 in configuration above to configure agents.").classes('text-amber-400')

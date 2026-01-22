@@ -5,20 +5,20 @@ from reef.manager.core import ANSIBLE_DIR, HOSTS_INI_FILE, BASE_DIR
 from reef.manager.ui_utils import page_header, card_style, async_run_command, async_run_ansible_playbook
 
 def show_prerequisites():
-    page_header("Prerequisites Check", "Verify system requirements and connectivity")
+    page_header("System Compatibility Check", "Verify if computers are ready for installation")
 
     with ui.column().classes('w-full gap-6'):
         
         # Options Card
         with ui.column().classes(card_style() + ' w-full'):
-            ui.label("Options").classes('font-bold text-slate-300 mb-4')
+            ui.label("Check Settings").classes('font-bold text-slate-300 mb-4')
             
             with ui.row().classes('gap-8 items-center'):
-                mode = ui.radio(["Local Machine", "Inventory Hosts"], value="Local Machine").props('inline')
-                verbose = ui.checkbox("More Verbose (-vv)")
+                mode = ui.radio(["This Computer", "All Computers"], value="This Computer").props('inline')
+                verbose = ui.checkbox("Show Detailed Logs")
 
         # Action Button
-        btn_run = ui.button("Run Check", on_click=lambda: run_prereqs()).classes('bg-indigo-600')
+        btn_run = ui.button("Start Check", on_click=lambda: run_prereqs()).classes('bg-indigo-600')
         
         # Logs
         log_view = ui.log().classes('w-full h-64 bg-slate-900 font-mono text-xs p-4 rounded-xl border border-white/10')
@@ -41,7 +41,7 @@ def show_prerequisites():
         log_file = BASE_DIR / "logs" / f"prerequisites_{timestamp}.log"
         log_file.parent.mkdir(parents=True, exist_ok=True)
         
-        if mode.value == "Local Machine":
+        if mode.value == "This Computer":
             cmd = f"ansible-playbook {playbook} --connection=local -i localhost, {verbosity_flag}"
         else:
             if not HOSTS_INI_FILE.exists():
@@ -55,12 +55,12 @@ def show_prerequisites():
         # Render Results Table
         if task_results:
              with results_container:
-                ui.label("Task Execution Summary").classes('text-lg font-bold text-slate-200 mb-2')
+                ui.label("Check Results").classes('text-lg font-bold text-slate-200 mb-2')
                 
                 cols = [
-                    {'name': 'host', 'label': 'Host', 'field': 'host', 'align': 'left'},
-                    {'name': 'task', 'label': 'Task', 'field': 'task', 'align': 'left'},
-                    {'name': 'status', 'label': 'Status', 'field': 'status', 'align': 'left'},
+                    {'name': 'host', 'label': 'Computer', 'field': 'host', 'align': 'left'},
+                    {'name': 'task', 'label': 'Action', 'field': 'task', 'align': 'left'},
+                    {'name': 'status', 'label': 'Result', 'field': 'status', 'align': 'left'},
                 ]
                 
                 table = ui.table(columns=cols, rows=task_results, row_key='task').classes('w-full')

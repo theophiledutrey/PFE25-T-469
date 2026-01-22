@@ -5,13 +5,13 @@ from reef.manager.wazuh_api import fetch_wazuh_alert_summary, generate_report_pd
 import datetime
 
 def show_dashboard():
-    page_header("Dashboard", "Security Infrastructure Manager")
+    page_header("Dashboard", "Overview of your security system")
 
     if not GROUP_VARS_FILE.exists():
         with ui.card().classes('w-full bg-amber-500/10 border-amber-500/20'):
             with ui.row().classes('items-center gap-4'):
                 ui.icon('warning', size='lg').classes('text-amber-500')
-                ui.label("Configuration missing. Please go to the Configuration tab to initialize the system.").classes('text-amber-500 text-lg')
+                ui.label("Configuration missing. Please go to the Configuration tab to set up your system.").classes('text-amber-500 text-lg')
         return
 
     # Load data
@@ -139,7 +139,7 @@ def show_dashboard():
         # Core Infrastructure Card
         with ui.column().classes(card_style()):
             with ui.row().classes('w-full justify-between items-center mb-4 border-b border-white/10 pb-2'):
-                ui.label('Core Infrastructure').classes('text-slate-400 font-bold')
+                ui.label('System Health').classes('text-slate-400 font-bold')
                 ui.button(on_click=refresh_infrastructure).props('icon=refresh flat dense round size=sm').classes('text-slate-500 hover:text-white')
             
             with ui.column().classes('gap-6 w-full'):
@@ -149,6 +149,7 @@ def show_dashboard():
                     with ui.column().classes('gap-0'):
                         ui.label('SYSTEM STATUS').classes('text-xs text-slate-500 font-bold')
                         status_badge(HOSTS_INI_FILE.exists(), "Active", "Pending Setup")
+                        ui.tooltip("Shows if the system is configured and ready to use").classes('text-slate-300 text-xs')
                     
                     #with ui.column().classes('gap-0 items-end'):
                         #ui.label('MANAGER NODE').classes('text-xs text-slate-500 font-bold')
@@ -161,7 +162,8 @@ def show_dashboard():
                             ui.icon('security')
                         
                         with ui.column().classes('gap-0'):
-                            ui.label('Wazuh Dashboard').classes('text-slate-200 font-bold text-lg')
+                            ui.label('Security Dashboard').classes('text-slate-200 font-bold text-lg')
+                            ui.label('View alerts and events').classes('text-slate-400 text-xs')
                             with ui.row().classes('items-center gap-2'):
                                 status_label = ui.label('Checking...').classes('text-xs text-slate-500')
                                 spinner = ui.spinner('dots', size='xs').classes('text-slate-500')
@@ -176,8 +178,8 @@ def show_dashboard():
                         ui.icon('monitor')
                     
                     with ui.column().classes('gap-0'):
-                        ui.label(f'{manager_count} Managers').classes('text-slate-200 font-bold text-lg')
-                        ui.label('Inventory Endpoints').classes('text-slate-400 text-sm')
+                        ui.label(f'{manager_count} Security Servers').classes('text-slate-200 font-bold text-lg')
+                        ui.label('Central Management Nodes').classes('text-slate-400 text-sm')
                 
                 if manager_ips:
                     with ui.scroll_area().classes('w-full h-24 gap-1'):
@@ -198,8 +200,8 @@ def show_dashboard():
                         ui.icon('monitor')
                     
                     with ui.column().classes('gap-0'):
-                        ui.label(f'{agent_count} Agents').classes('text-slate-200 font-bold text-lg')
-                        ui.label('Inventory Endpoints').classes('text-slate-400 text-sm')
+                        ui.label(f'{agent_count} Protected Computers').classes('text-slate-200 font-bold text-lg')
+                        ui.label('Monitored Devices').classes('text-slate-400 text-sm')
                 
                 if agent_ips:
                     with ui.scroll_area().classes('w-full h-24 gap-1'):
@@ -219,7 +221,7 @@ def show_dashboard():
 
         # Active Roles Card
         with ui.column().classes(card_style()):
-            ui.label('Active Components').classes('text-slate-400 font-bold mb-4 border-b border-white/10 pb-2 w-full')
+            ui.label('Installed Features').classes('text-slate-400 font-bold mb-4 border-b border-white/10 pb-2 w-full')
             
             with ui.grid(columns=2).classes('w-full gap-3 mb-6'):
                 if enabled_roles:
@@ -238,11 +240,13 @@ def show_dashboard():
                 with ui.row().classes('gap-6'):
                     with ui.column().classes('gap-0'):
                         ui.label('Config File').classes('text-xs text-slate-400')
-                        ui.label('group_vars/all.yml').classes('text-sm text-slate-300')
+                        ui.label('Main Settings').classes('text-sm text-slate-300')
+                        ui.tooltip("group_vars/all.yml").classes('text-slate-300 text-xs')
                     
                     with ui.column().classes('gap-0'):
                         ui.label('Inventory').classes('text-xs text-slate-400')
-                        ui.label('hosts.ini').classes('text-sm text-slate-300')
+                        ui.label('Computer List').classes('text-sm text-slate-300')
+                        ui.tooltip("hosts.ini").classes('text-slate-300 text-xs')
 
         # Reports Card
         with ui.column().classes(card_style()):
