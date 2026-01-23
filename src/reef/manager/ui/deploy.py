@@ -48,6 +48,34 @@ def show_deploy():
                         'cleanup': ('Cleanup', 'Remove all existing components.'),
                     }
 
+                    role_checkboxes = {}
+
+                    def handle_role_change(role_name, value):
+                        # Strict coupling: Indexer <-> Server
+                        if role_name == 'wazuh-indexer':
+                            if value:
+                                # Indexer ON -> Server ON
+                                if 'wazuh-server' in role_checkboxes and not role_checkboxes['wazuh-server'].value:
+                                    role_checkboxes['wazuh-server'].value = True
+                                    ui.notify('Auto-selected Wazuh Server (coupled with Indexer)', type='positive')
+                            else:
+                                # Indexer OFF -> Server OFF
+                                if 'wazuh-server' in role_checkboxes and role_checkboxes['wazuh-server'].value:
+                                    role_checkboxes['wazuh-server'].value = False
+                                    ui.notify('Auto-deselected Wazuh Server (coupled with Indexer)', type='warning')
+
+                        if role_name == 'wazuh-server':
+                            if value:
+                                # Server ON -> Indexer ON
+                                if 'wazuh-indexer' in role_checkboxes and not role_checkboxes['wazuh-indexer'].value:
+                                    role_checkboxes['wazuh-indexer'].value = True
+                                    ui.notify('Auto-selected Wazuh Indexer (coupled with Server)', type='positive')
+                            else:
+                                # Server OFF -> Indexer OFF
+                                if 'wazuh-indexer' in role_checkboxes and role_checkboxes['wazuh-indexer'].value:
+                                    role_checkboxes['wazuh-indexer'].value = False
+                                    ui.notify('Auto-deselected Wazuh Indexer (coupled with Server)', type='warning')
+
                     with ui.grid(columns=2).classes('w-full gap-4'):
                         for role in all_roles:
                             # Skip internal roles
@@ -59,7 +87,10 @@ def show_deploy():
                             
                             with ui.row().classes('w-full bg-slate-800/50 border border-white/5 p-4 rounded-xl items-start gap-4 hover:border-indigo-500/50 transition-colors'):
                                 chk = ui.checkbox(value=(role in enabled)).classes('scale-125 mt-1')
+                                chk.on_value_change(lambda e, r=role: handle_role_change(r, e.value))
+                                
                                 selected_roles.append((role, chk))
+                                role_checkboxes[role] = chk
                                 
                                 with ui.column().classes('gap-1'):
                                     ui.label(title).classes('font-bold text-slate-200 text-base')
