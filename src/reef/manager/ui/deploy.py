@@ -2,7 +2,7 @@ from nicegui import ui
 import os
 import asyncio
 from pathlib import Path
-from reef.manager.core import ANSIBLE_DIR, HOSTS_INI_FILE, load_current_config, update_yaml_config_from_schema
+from reef.manager.core import ANSIBLE_DIR, HOSTS_INI_FILE, load_current_config, update_yaml_config_from_schema, create_vm, generate_terraform_vm_config, run_terraform_apply, get_manager_credentials_from_inventory
 from reef.manager.ui_utils import page_header, card_style, async_run_command, async_run_ansible_playbook
 
 def show_deploy():
@@ -50,6 +50,38 @@ def show_deploy():
                             
                     ui.button("Save Role Selection", on_click=save_roles).classes('mt-4 bg-slate-700')
 
+                    # --- Create VM option inside Enabled Components ---
+                    create_vm_checkbox = ui.checkbox('Create VM for this deployment', value=False).classes('text-slate-300 mt-4')
+
+                # VM Deployment (appears when Create VM is checked)
+                with ui.column().classes(card_style() + ' w-full').bind_visibility_from(create_vm_checkbox, 'value', value=True):
+                    ui.label("VM Deployment").classes('text-xl font-bold text-slate-200 mb-4')
+
+                    vm_count = ui.select([1,2,3,4,5], value=1, label='Number of VMs').classes('w-36 text-slate-300')
+                    vm_deploy_container = ui.column().classes('w-full gap-4 mt-2')
+                    vm_entries = []
+
+                    def rebuild_vm_entries(*_args):
+                        vm_deploy_container.clear()
+                        vm_entries.clear()
+                        try:
+                            n = int(vm_count.value)
+                        except Exception:
+                            n = 1
+                        for i in range(n):
+                            with vm_deploy_container:
+                                with ui.column().classes('bg-slate-800/30 p-4 rounded-lg border border-white/5 gap-2'):
+                                    ui.label(f'VM #{i+1}').classes('font-bold text-slate-200')
+                                    type_sel = ui.select(['ubuntu-22.04', 'debian-11'], value='ubuntu-22.04').classes('w-full text-slate-300')
+                                    name_in = ui.input(label='VM Name', placeholder=f'vm-{i+1}').classes('w-full text-slate-300')
+                                    ssh_pw = ui.input(label='SSH Password', password=True).classes('w-full text-slate-300')
+                            vm_entries.append({'type': type_sel, 'name': name_in, 'ssh_password': ssh_pw})
+
+                    vm_count.on('update:model-value', lambda *_: rebuild_vm_entries())
+                    rebuild_vm_entries()
+
+                    # (Creation will run during deployment when Start Deployment is clicked)
+
                 # Target Selection
                 with ui.column().classes(card_style() + ' w-full'):
                     ui.label("Deployment Scope").classes('text-xl font-bold text-slate-200 mb-4')
@@ -89,6 +121,9 @@ def show_deploy():
                 # Deployment Action
                 with ui.column().classes(card_style() + ' w-full'):
                     btn_deploy = ui.button("🚀 Start Deployment", on_click=lambda: run_deployment()).classes('bg-indigo-600 w-full py-4 text-lg')
+
+                    
+
                     credentials_container = ui.column().classes('w-full mt-4 hidden')
                     deploy_log = ui.log().classes('w-full h-64 bg-slate-900 font-mono text-xs p-4 rounded-xl border border-white/10 mt-4')
 
@@ -106,6 +141,59 @@ def show_deploy():
                 
 
                 
+                # If requested, create VMs first using Terraform
+                created_vms = []
+                if create_vm_checkbox.value and vm_entries:
+                    ui.notify('Generating Terraform configuration for VMs...', type='info')
+                    deploy_log.push("[VM] Preparing Terraform configuration...\n")
+                    
+                    # Build VM specs from UI entries
+                    vm_specs = []
+                    for idx, entry in enumerate(vm_entries, start=1):
+                        name = entry['name'].value or f"vm-{idx}"
+                        ssh_pw = entry.get('ssh_password').value if entry.get('ssh_password') else 'ubuntu'
+                        os_choice = entry.get('type').value if entry.get('type') else 'ubuntu-22.04'
+                        
+                        vm_specs.append({
+                            'name': name,
+                            'ssh_password': ssh_pw,
+                            'os': os_choice
+                        })
+                        deploy_log.push(f"[VM#{idx}] Spec: name={name}, os={os_choice}\n")
+                    
+                    # Get Manager credentials from hosts.ini
+                    manager_ip, manager_ssh_user, manager_ssh_password = await asyncio.to_thread(get_manager_credentials_from_inventory)
+                    
+                    if not manager_ip or not manager_ssh_password:
+                        deploy_log.push("[ERROR] Manager credentials not found in hosts.ini. Please run 'UPDATE INVENTORY (HOSTS.INI)' in Configuration tab first.\n")
+                        return
+                    
+                    gen_result = await asyncio.to_thread(generate_terraform_vm_config, vm_specs, manager_ip, manager_ssh_user, manager_ssh_password)
+                    if gen_result.get('success'):
+                        deploy_log.push(f"[VM] {gen_result.get('message')}\n")
+                        
+                        # Run Terraform apply on manager (via SSH)
+                        deploy_log.push("[TF] Starting Terraform apply on manager...\n")
+                        tf_result = await asyncio.to_thread(
+                            run_terraform_apply,
+                            gen_result.get('terraform_dir'),
+                            lambda msg: deploy_log.push(msg),  # Log callback
+                            gen_result.get('manager_ssh_password'),  # SSH password
+                            gen_result.get('manager_ip'),  # Manager IP
+                            gen_result.get('manager_ssh_user')  # Manager SSH user
+                        )
+                        
+                        if tf_result.get('success'):
+                            deploy_log.push(f"[TF] {tf_result.get('message')}\n")
+                            created_vms = gen_result.get('vms', [])
+                            ui.notify('VMs created successfully!', type='positive')
+                        else:
+                            deploy_log.push(f"[TF] ERROR: {tf_result.get('message')}\n")
+                            ui.notify(f"VM creation failed: {tf_result.get('message')}", type='negative')
+                    else:
+                        deploy_log.push(f"[VM] ERROR: {gen_result.get('message')}\n")
+                        ui.notify(f"Failed to generate Terraform config: {gen_result.get('message')}", type='negative')
+
                 playbook = ANSIBLE_DIR / "playbooks" / "experimental.yml"
                 inventory = HOSTS_INI_FILE
                 
@@ -151,6 +239,49 @@ def show_deploy():
                 
                 btn_deploy.enable()
 
+            async def create_vm_handler():
+                # Simple handler that calls the core.create_vm stub and reports results
+                # Backwards-compatible single-create (if legacy controls exist)
+                try:
+                    name = vm_name.value or f"vm-{os.getpid()}"
+                    image = vm_image.value
+                    size = vm_size.value
+                except Exception:
+                    ui.notify("No VM fields available for single-create", type='warning')
+                    return
+
+                deploy_log.push(f"[VM] Creating VM: name={name}, image={image}, size={size}\n")
+                result = await asyncio.to_thread(create_vm, name, image, size)
+
+                if result.get('success'):
+                    ui.notify(f"VM '{result.get('name')}' created ({result.get('ip')})", type='positive')
+                    deploy_log.push(f"[VM] Success: {result.get('message')} ip={result.get('ip')}\n")
+                    with results_container:
+                        ui.label(f"VM Created: {result.get('name')} ({result.get('ip')})").classes('text-slate-300')
+                else:
+                    ui.notify(f"VM creation failed: {result.get('message')}", type='negative')
+                    deploy_log.push(f"[VM] Error: {result.get('message')}\n")
+
+            async def create_vm_handler_multiple():
+                # Create all VMs defined in vm_entries
+                if not vm_entries:
+                    ui.notify('No VM entries defined', type='warning')
+                    return
+
+                for idx, entry in enumerate(vm_entries, start=1):
+                    name = entry['name'].value or f"vm-{idx}-{os.getpid()}"
+                    image = entry['type'].value
+                    # we don't use size here; default to 'small'
+                    deploy_log.push(f"[VM#{idx}] Creating: name={name}, image={image}\n")
+                    result = await asyncio.to_thread(create_vm, name, image, 'small')
+                    if result.get('success'):
+                        ui.notify(f"VM '{result.get('name')}' created ({result.get('ip')})", type='positive')
+                        deploy_log.push(f"[VM#{idx}] Success: {result.get('message')} ip={result.get('ip')}\n")
+                        with results_container:
+                            ui.label(f"VM Created: {result.get('name')} ({result.get('ip')})").classes('text-slate-300')
+                    else:
+                        ui.notify(f"VM #{idx} creation failed: {result.get('message')}", type='negative')
+                        deploy_log.push(f"[VM#{idx}] Error: {result.get('message')}\n")
             def check_credentials(output):
                 # Attempt to retrieve credentials
                 config = load_current_config()
