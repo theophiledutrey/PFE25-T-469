@@ -1,4 +1,12 @@
 ---
+- name: Ensure system time is synchronized (fix for apt release file time errors)
+  shell: |
+    timedatectl set-ntp on || true
+    systemctl restart systemd-timesyncd || true
+  become: true
+  ignore_errors: yes
+  changed_when: false
+
 - name: Update apt cache
   apt:
     update_cache: yes

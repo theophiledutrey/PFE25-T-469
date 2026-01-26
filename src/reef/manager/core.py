@@ -188,7 +188,7 @@ def update_yaml_config_from_schema(config_data):
 
 import configparser
 
-def update_ini_inventory(manager_ip, manager_user, manager_password, agents_data):
+def update_ini_inventory(manager_ip, manager_user, manager_password, manager_key, agents_data):
     """Update ansible/inventory/hosts.ini using configparser with space delimiter."""
     # Use space as delimiter so "ip vars" is parsed as Key: "ip", Value: "vars"
     config = configparser.ConfigParser(delimiters=(' '), allow_no_value=True)
@@ -207,6 +207,9 @@ def update_ini_inventory(manager_ip, manager_user, manager_password, agents_data
     if manager_password:
         manager_entry_values.append(f"ansible_password={manager_password}")
         manager_entry_values.append(f"ansible_become_password={manager_password}")
+
+    if manager_key:
+        manager_entry_values.append(f"ansible_ssh_private_key_file={manager_key}")
     
     val_str = " ".join(manager_entry_values)
     config.set('security_server', manager_ip, val_str)
@@ -219,6 +222,8 @@ def update_ini_inventory(manager_ip, manager_user, manager_password, agents_data
         if agent['password']:
             agent_values.append(f"ansible_password={agent['password']}")
             agent_values.append(f"ansible_become_password={agent['password']}")
+        if agent.get('key'):
+             agent_values.append(f"ansible_ssh_private_key_file={agent['key']}")
         
         val_str = " ".join(agent_values) if agent_values else None
         config.set('agents', agent['ip'], val_str)
@@ -262,12 +267,24 @@ def get_inventory_hosts():
                 vars_str = config[section_name][ip]
                 
                 user = "root"
-                if vars_str:
-                    match = re.search(r'ansible_user=(\S+)', vars_str)
-                    if match:
-                        user = match.group(1)
+                key = ""
+                password = ""
                 
-                hosts.append({'ip': ip, 'user': user})
+                if vars_str:
+                    match_user = re.search(r'ansible_user=(\S+)', vars_str)
+                    if match_user:
+                        user = match_user.group(1)
+                    
+                    match_key = re.search(r'ansible_ssh_private_key_file=(\S+)', vars_str)
+                    if match_key:
+                        key = match_key.group(1)
+
+                    match_pass = re.search(r'ansible_password=(\S+)', vars_str)
+                    if match_pass:
+                        password = match_pass.group(1)
+
+                
+                hosts.append({'ip': ip, 'user': user, 'key': key, 'password': password})
 
         parse_section('security_server')
         parse_section('agents')

@@ -1,7 +1,5 @@
 ---
 
-- include_tasks: clean.yml
-
 - name: Create Wazuh installation directory
   file:
     path: /opt/wazuh-install
@@ -95,12 +93,12 @@
   run_once: true
 
 - name: Save Wazuh admin password to local file
-  copy:
-    content: "{{ wazuh_password.stdout | default('(Dry Run: Password not available)') }}"
-    dest: "{{ playbook_dir }}/../inventory/wazuh-admin-password.txt"
+  shell: |
+    echo "{{ wazuh_password.stdout | default('(Dry Run: Password not available)') }}" > "{{ playbook_dir }}/../inventory/wazuh-admin-password.txt"
   delegate_to: localhost
   run_once: true
   become: false
-  vars:
-    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  changed_when: false
   when: not ansible_check_mode
+  async: 10
+  poll: 0

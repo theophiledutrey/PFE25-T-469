@@ -13,6 +13,19 @@
       debug:
         msg: "Installing roles: {{ enabled_roles | intersect(['cleanup', 'common', 'wazuh-agent', 'suricata']) | join(', ') }}"
 
+    - name: Execute Modular Cleanup for Selected Roles
+      include_role:
+        name: "{{ role_item }}"
+        tasks_from: clean.yml
+      loop:
+        - wazuh-agent
+        - suricata
+      loop_control:
+        loop_var: role_item
+      when: 
+        - "'cleanup' not in enabled_roles"
+        - role_item in enabled_roles
+
     - name: Apply enabled roles in order
       include_role:
         name: "{{ role_item }}"
@@ -43,6 +56,23 @@
       debug:
         msg: "Installing roles: {{ enabled_roles | intersect(['cleanup', 'common', 'wazuh-indexer', 'wazuh-server', 'wazuh-dashboard', 'grafana', 'ufw', 'fail2ban']) | join(', ') }}"
 
+
+    - name: Execute Modular Cleanup for Selected Roles
+      include_role:
+        name: "{{ role_item }}"
+        tasks_from: clean.yml
+      loop:
+        - wazuh-indexer
+        - wazuh-server
+        - wazuh-dashboard
+        - grafana
+        - ufw
+        - fail2ban
+      loop_control:
+        loop_var: role_item
+      when: 
+        - "'cleanup' not in enabled_roles"
+        - role_item in enabled_roles
 
     - name: Apply enabled roles in order
       include_role:

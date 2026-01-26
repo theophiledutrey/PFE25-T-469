@@ -3,3 +3,5 @@ galaxy_info:
   author: PME Automation
   description: Wazuh Search Engine
 
+dependencies:
+  - role: cleanup

@@ -2,8 +2,8 @@ variables:
   - name: endpoint_count
     type: integer
     default: 1
-    description: "Number of endpoints to manage"
-    category: "General"
+    description: "Number of protected computers"
+    category: "Basic Settings"
     validation:
       min: 1
       max: 1000
@@ -11,8 +11,8 @@ variables:
   - name: target_os
     type: string
     default: "ubuntu"
-    description: "Target Operating System for agents"
-    category: "General"
+    description: "Operating System of your computers"
+    category: "Basic Settings"
     allowed_values:
       - "ubuntu"
       - "debian"
@@ -20,22 +20,27 @@ variables:
   - name: wazuh_manager_ip
     type: string
     default: "192.168.64.12"
-    description: "IP address of the Wazuh Manager"
-    category: "Wazuh Settings"
+    description: "IP address of the Security Server (Wazuh)"
+    category: "Server Settings"
     validation:
       regex: "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$"
 
   - name: wazuh_dashboard_port
     type: integer
     default: 443
-    description: "Port for the Wazuh Dashboard"
-    category: "Wazuh Settings"
+    description: "Security Dashboard Port (Default: 443)"
+    category: "Server Settings"
 
+  - name: ansible_ssh_private_key_file
+    type: string
+    default: ""
+    description: "SSH Private Key Path (e.g. ~/.ssh/id_rsa)"
+    category: "Server Settings"
 
   - name: fail2ban_bantime
     type: integer
     default: 3600
-    description: "Ban time in seconds"
+    description: "How long to block intruders (seconds)"
     category: "Security"
     validation:
       min: 60
@@ -43,7 +48,7 @@ variables:
   - name: fail2ban_maxretry
     type: integer
     default: 5
-    description: "Maximum retries before ban"
+    description: "Login attempts before blocking"
     category: "Security"
     validation:
       min: 1
@@ -52,11 +57,11 @@ variables:
   - name: ufw_allow_dashboard
     type: boolean
     default: true
-    description: "Allow external access to Wazuh Dashboard"
+    description: "Allow access to Dashboard from other computers"
     category: "Security"
 
   - name: allowed_ssh_ips
     type: list
     default: ["192.168.1.0/24", "192.168.64.0/24", "10.0.0.0/8", "127.0.0.1"]
-    description: "List of IPs/CIDRs allowed to SSH"
+    description: "Network addresses allowed to connect remotely (SSH)"
     category: "Security"

@@ -58,6 +58,16 @@
     - "'already installed' not in plugin_install.stdout"
   become: true
 
+- name: Install Infinity Datasource Plugin
+  command: grafana-cli plugins install yesoreyeram-infinity-datasource
+  register: infinity_plugin_install
+  changed_when: "'installed' in infinity_plugin_install.stdout"
+  failed_when:
+    - infinity_plugin_install.rc != 0
+    - "'already installed' not in infinity_plugin_install.stderr"
+    - "'already installed' not in infinity_plugin_install.stdout"
+  become: true
+
 - name: Ensure Grafana data directory permissions
   file:
     path: /var/lib/grafana
@@ -84,8 +94,8 @@
   become: true
 
 - name: Copy Wazuh Dashboard
-  copy:
-    src: default_dashboard.json
+  template:
+    src: default_dashboard.json.j2
     dest: /var/lib/grafana/dashboards/wazuh.json
     owner: grafana
     group: grafana

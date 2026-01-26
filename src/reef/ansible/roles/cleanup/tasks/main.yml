@@ -73,6 +73,23 @@
   ignore_errors: yes
   failed_when: false
 
+- name: Fix broken packages (if any)
+  shell: dpkg --configure -a && apt-get install --fix-broken -y
+  become: true
+  ignore_errors: true
+
+- name: Force remove broken package scripts for Wazuh
+  file:
+    path: "/var/lib/dpkg/info/{{ item }}"
+    state: absent
+  loop:
+    - wazuh-agent.prerm
+    - wazuh-agent.postrm
+    - wazuh-manager.prerm
+    - wazuh-manager.postrm
+  become: true
+  ignore_errors: true
+
 - name: Remove Wazuh packages
   apt:
     name:

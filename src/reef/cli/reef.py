@@ -550,8 +550,27 @@ def toggle_roles_interactive(current_config):
                 role = all_known_roles[idx-1]
                 if role in enabled:
                     enabled.remove(role)
+                    # Strict Coupling: OFF Logic
+                    if role == 'wazuh-server' and 'wazuh-indexer' in enabled:
+                         enabled.remove('wazuh-indexer')
+                         console.print("[yellow]Auto-disabling wazuh-indexer (coupled with wazuh-server)[/yellow]")
+                         time.sleep(1)
+                    if role == 'wazuh-indexer' and 'wazuh-server' in enabled:
+                        enabled.remove('wazuh-server')
+                        console.print("[yellow]Auto-disabling wazuh-server (coupled with wazuh-indexer)[/yellow]")
+                        time.sleep(1)
+
                 else:
                     enabled.add(role)
+                    # Strict Coupling: ON Logic
+                    if role == 'wazuh-indexer' and 'wazuh-server' not in enabled:
+                        enabled.add('wazuh-server')
+                        console.print("[green]Auto-enabling wazuh-server (coupled with wazuh-indexer)[/green]")
+                        time.sleep(1)
+                    if role == 'wazuh-server' and 'wazuh-indexer' not in enabled:
+                        enabled.add('wazuh-indexer')
+                        console.print("[green]Auto-enabling wazuh-indexer (coupled with wazuh-server)[/green]")
+                        time.sleep(1)
             else:
                 console.print("[red]Invalid index[/red]")
                 time.sleep(1)
