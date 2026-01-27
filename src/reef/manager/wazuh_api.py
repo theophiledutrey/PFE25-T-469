@@ -16,39 +16,12 @@ def get_wazuh_credentials():
         password = WAZUH_PASSWORD_FILE.read_text().strip()
     return manager_ip, user, password
 
-async def get_wazuh_api_token(client, manager_ip, user, password):
-    """Authenticate with Wazuh API (Port 55000) to get JWT token."""
-    url = f"https://{manager_ip}:55000/security/user/authenticate"
-    try:
-        response = await client.get(url, auth=(user, password))
-        response.raise_for_status()
-        return response.json()['data']['token']
-    except Exception as e:
-        print(f"Error getting Wazuh API token: {e}")
-        return None
 
-async def fetch_agents_status(client, manager_ip, token):
-    """Fetch agents status from Wazuh API."""
-    if not token:
-        return []
-    
-    url = f"https://{manager_ip}:55000/agents"
-    headers = {"Authorization": f"Bearer {token}"}
-    try:
-        response = await client.get(url, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        return data.get('data', {}).get('affected_items', [])
-    except Exception as e:
-        print(f"Error fetching agents: {e}")
-        return []
 
 async def fetch_wazuh_alert_summary(time_range="now-24h"):
     """
-    Fetches comprehensive data for the report:
-    1. Alert summary (Indexer)
-    2. Top alerts (Indexer)
-    3. Agent status (API)
+    Fetches comprehensive data for the report ONLY from Indexer (9200).
+    Aggregates alerts to infer agent activity, ignoring Port 55000.
     """
     manager_ip, user, password = get_wazuh_credentials()
     
@@ -62,19 +35,11 @@ async def fetch_wazuh_alert_summary(time_range="now-24h"):
         "period": time_range
     }
 
-    async with httpx.AsyncClient(verify=False, timeout=10.0) as client:
-        # 1. API Calls (Agents)
-        token = await get_wazuh_api_token(client, manager_ip, user, password)
-        if token:
-            data_out["agents"] = await fetch_agents_status(client, manager_ip, token)
+    indexer_url = f"https://{manager_ip}:9200/wazuh-alerts-*/_search"
 
-        # 2. Indexer Calls (Alerts)
-        indexer_url = f"https://{manager_ip}:9200/wazuh-alerts-*/_search"
+    async with httpx.AsyncClient(verify=False, timeout=10.0) as client:
         
-        # Combined query for Summary + Top Alerts to save time? 
-        # Actually separate queries is clearer for aggregations.
-        
-        # Query A: Summary by Level
+        # 1. Summary Query
         summary_query = {
             "size": 0,
             "query": {
@@ -114,7 +79,7 @@ async def fetch_wazuh_alert_summary(time_range="now-24h"):
         except Exception as e:
             print(f"Error fetching summary: {e}")
 
-        # Query B: Top Alerts (Description + Level)
+        # 2. Top Alerts Query
         top_query = {
             "size": 0,
             "query": {
@@ -157,6 +122,53 @@ async def fetch_wazuh_alert_summary(time_range="now-24h"):
                     })
         except Exception as e:
             print(f"Error fetching top alerts: {e}")
+
+        # 3. Active Agents Query (Replacing API call)
+        agents_query = {
+             "size": 0,
+             "query": {
+                 "range": {
+                     "@timestamp": {
+                         "gte": time_range
+                     }
+                 }
+             },
+             "aggs": {
+                 "agents": {
+                     "terms": {
+                         "field": "agent.name",
+                         "size": 100
+                     },
+                     "aggs": {
+                         "ips": {
+                             "terms": {
+                                 "field": "agent.ip",
+                                 "size": 1
+                             }
+                         }
+                     }
+                 }
+             }
+        }
+
+        try:
+            resp_agents = await client.post(indexer_url, json=agents_query, auth=(user, password))
+            if resp_agents.status_code == 200:
+                a_data = resp_agents.json()
+                buckets = a_data.get('aggregations', {}).get('agents', {}).get('buckets', [])
+                for b in buckets:
+                    agent_name = b['key']
+                    ip_buckets = b.get('ips', {}).get('buckets', [])
+                    agent_ip = ip_buckets[0]['key'] if ip_buckets else "Unknown"
+                    
+                    data_out["agents"].append({
+                        "name": agent_name,
+                        "ip": agent_ip,
+                        "status": "active",
+                        "os": {"name": "N/A (Logs)"}
+                    })
+        except Exception as e:
+            print(f"Error fetching agents from logs: {e}")
 
     return data_out
 
