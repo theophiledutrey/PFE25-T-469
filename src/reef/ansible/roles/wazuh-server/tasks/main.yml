@@ -1,25 +1,35 @@
 ---
-- include_tasks: clean.yml
-#- name: Verify Wazuh installation directory exists
-#  stat:
-#    path: /opt/wazuh-install
-#  register: wazuh_install_dir
+- name: Verify Wazuh installation directory exists
+  stat:
+    path: /opt/wazuh-install
+  register: wazuh_install_dir
 
-#- name: Verify Wazuh configuration tarball exists
-#  stat:
-#    path: /opt/wazuh-install/wazuh-install-files.tar
-#  register: wazuh_config_tar
+- name: Verify Wazuh configuration tarball exists
+  stat:
+    path: /opt/wazuh-install/wazuh-install-files.tar
+  register: wazuh_config_tar
 
-#- name: Fail if Wazuh installation dependencies are missing
-#  fail:
-#    msg: "Wazuh installation directory or configuration tarball is missing. Ensure wazuh-indexer role runs first."
-#  when: not wazuh_install_dir.stat.exists or not wazuh_config_tar.stat.exists
+- name: Fail if Wazuh installation dependencies are missing
+  fail:
+    msg: "Wazuh installation directory or configuration tarball is missing. Ensure wazuh-indexer role runs first."
+  when: not wazuh_install_dir.stat.exists or not wazuh_config_tar.stat.exists
 
 - name: Install Wazuh Server
   command: ./wazuh-install.sh --wazuh-server {{ wazuh_server_node_name | default('wazuh-1') }} --overwrite
   args:
     chdir: /opt/wazuh-install
-    creates: /var/ossec/bin/wazuh-control
+    creates: /var/ossec/bin/wazuh-analysisd
+
+#demo only
+- name: Deploy custom demo rules
+  ansible.builtin.copy:
+    src: demo_rules.xml
+    dest: /var/ossec/etc/rules/demo_rules.xml
+    owner: wazuh
+    group: wazuh
+    mode: '0644'
+  register: demo_rules_update
+#demo only
 
 - name: Reload systemd daemon
   ansible.builtin.systemd:
@@ -29,12 +39,43 @@
 - name: Enable and start manager service
   ansible.builtin.systemd:
     name: wazuh-manager
-    state: started
+    # state: started
+    state: "{{ 'restarted' if demo_rules_update.changed else 'started' }}"
     enabled: true
   ignore_errors: "{{ ansible_check_mode }}"
 
+- name: Configure Vulnerability Detection (Ubuntu Noble)
+  replace:
+    path: /var/ossec/etc/ossec.conf
+    regexp: '(?ms)<vulnerability-detection>.*?</vulnerability-detection>'
+    replace: |
+      <vulnerability-detection>
+         <enabled>yes</enabled>
+         <index-status>yes</index-status>
+         <feed-update-interval>60m</feed-update-interval>
+         <providers>
+            <provider name="canonical">
+               <enabled>yes</enabled>
+               <os>noble</os>
+               <update_interval>1h</update_interval>
+            </provider>
+         </providers>
+      </vulnerability-detection>
+  ignore_errors: "{{ ansible_check_mode }}"
+  notify: restart wazuh-manager
+
+- name: Enable Manager Self-Scanning (Internal Options)
+  lineinfile:
+    path: /var/ossec/etc/local_internal_options.conf
+    line: 'vulnerability-detection.disable_scan_manager=0'
+    create: yes
+    owner: root
+    group: wazuh
+    mode: '0640'
+  notify: restart wazuh-manager
+
 - name: Enable and start Filebeat service
-  ansible.builtin.systemd:
+  systemd:
     name: filebeat
     state: started
     enabled: true

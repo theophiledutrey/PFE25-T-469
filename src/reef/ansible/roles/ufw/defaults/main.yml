@@ -5,3 +5,4 @@ ufw_allow_wazuh_indexer: true
 allowed_ssh_ips: []
 ufw_additional_tcp_ports: []
 ufw_additional_udp_ports: []
+ufw_allow_grafana: true

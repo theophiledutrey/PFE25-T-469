@@ -1,5 +1,4 @@
 ---
-- include_tasks: clean.yml
 - name: Install Fail2ban
   apt:
     name: fail2ban

@@ -2,10 +2,21 @@ from nicegui import ui
 import asyncio
 import subprocess
 import os
+import signal
 from reef.manager.core import BASE_DIR, ANSIBLE_DIR
 
 class AppState:
     running_process: str = None
+    current_process: asyncio.subprocess.Process = None
+
+    def cancel_process(self):
+        if self.current_process:
+            try:
+                # Send SIGTERM to the process group to kill shell and children
+                os.killpg(os.getpgid(self.current_process.pid), signal.SIGTERM)
+                self.running_process = "Stopping..."
+            except Exception as e:
+                print(f"Error terminating process: {e}")
 
 app_state = AppState()
 
@@ -58,8 +69,10 @@ async def async_run_command(command: str, log_element: ui.log, on_complete=None)
             stderr=asyncio.subprocess.STDOUT,
             executable='/bin/bash',
             cwd=str(BASE_DIR),
-            env=_get_ansible_env()
+            env=_get_ansible_env(),
+            preexec_fn=os.setsid # Allow killing whole process group
         )
+        app_state.current_process = process
 
         while True:
             line = await process.stdout.readline()
@@ -76,6 +89,8 @@ async def async_run_command(command: str, log_element: ui.log, on_complete=None)
         try:
             if process.returncode == 0:
                 ui.notify('Command completed successfully', type='positive')
+            elif process.returncode == -15: # SIGTERM
+                 ui.notify('Command stopped by user', type='warning')
             else:
                 ui.notify(f'Command failed with exit code {process.returncode}', type='negative')
         except:
@@ -86,6 +101,7 @@ async def async_run_command(command: str, log_element: ui.log, on_complete=None)
             
     finally:
         app_state.running_process = None
+        app_state.current_process = None
 
 async def async_run_ansible_playbook(command: str, log_element: ui.log):
     """
@@ -93,6 +109,7 @@ async def async_run_ansible_playbook(command: str, log_element: ui.log):
     Returns: (returncode, full_output_string, task_results_list)
     """
     import re
+    import signal
     app_state.running_process = "Running Playbook..."
     try:
         log_element.clear()
@@ -110,8 +127,10 @@ async def async_run_ansible_playbook(command: str, log_element: ui.log):
             stderr=asyncio.subprocess.STDOUT,
             executable='/bin/bash',
             cwd=str(BASE_DIR),
-            env=_get_ansible_env()
+            env=_get_ansible_env(),
+            preexec_fn=os.setsid # Allow killing whole process group
         )
+        app_state.current_process = process
 
         current_task = "Starting"
 
@@ -154,6 +173,8 @@ async def async_run_ansible_playbook(command: str, log_element: ui.log):
         try:
             if process.returncode == 0:
                 ui.notify('Playbook completed successfully', type='positive')
+            elif process.returncode == -15:
+                 ui.notify('Playbook stopped by user', type='warning')
             else:
                 ui.notify(f'Playbook failed (Exit {process.returncode})', type='negative')
         except:
@@ -161,6 +182,14 @@ async def async_run_ansible_playbook(command: str, log_element: ui.log):
             
     finally:
         app_state.running_process = None
+        app_state.current_process = None
+        
+        # Ensure we kill the process group in case child processes (like ansible-playbook workers) persist
+        if process and process.returncode is None:
+             try:
+                os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+             except:
+                 pass
 
     return process.returncode, "\n".join(captured_lines), task_results
 

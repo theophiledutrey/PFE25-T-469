@@ -1,8 +1,41 @@
 ---
+
+- name: Remove this agent from Wazuh Manager
+  shell: |
+    AGENT_ID=$(/var/ossec/bin/manage_agents -l | grep "IP: {{ inventory_hostname }}" | awk -F', ' '{for(i=1;i<=NF;i++) if($i~/^ID:/) print $i}' | cut -d' ' -f2)
+    
+    if [ -n "$AGENT_ID" ]; then
+      echo "Removing Agent ID: $AGENT_ID for Host: {{ inventory_hostname }}"
+      /var/ossec/bin/manage_agents -r "$AGENT_ID"
+    else
+      echo "Agent with IP {{ inventory_hostname }} not found on manager."
+    fi
+  args:
+    executable: /bin/bash
+  delegate_to: "{{ groups['security_server'][0] }}"
+  become: true
+  ignore_errors: yes
+  when: groups['security_server'] is defined and (groups['security_server'] | length > 0)
+
 - name: Stop Wazuh Agent service
   service:
     name: wazuh-agent
     state: stopped
+  become: true
+  ignore_errors: true
+
+- name: Fix broken packages (if any)
+  shell: dpkg --configure -a && apt-get install --fix-broken -y
+  become: true
+  ignore_errors: true
+
+- name: Force remove broken package scripts
+  file:
+    path: "/var/lib/dpkg/info/{{ item }}"
+    state: absent
+  loop:
+    - wazuh-agent.prerm
+    - wazuh-agent.postrm
   become: true
   ignore_errors: true
 

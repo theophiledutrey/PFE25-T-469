@@ -1,5 +1,4 @@
 ---
-- include_tasks: clean.yml
 - name: Install software-properties-common
   apt:
     name: software-properties-common
@@ -14,6 +13,10 @@
     repo: ppa:oisf/suricata-stable
     state: present
     update_cache: yes
+  register: result
+  until: result is success
+  retries: 3
+  delay: 5
 
 - name: Install Suricata
   apt:

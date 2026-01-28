@@ -1,5 +1,4 @@
 ---
-- include_tasks: clean.yml
 - name: Install UFW
   apt:
     name: ufw
@@ -59,6 +58,14 @@
   when: ufw_allow_dashboard | bool or 'wazuh-dashboard' in (enabled_roles | default([]))
   become: true
 
+- name: Allow Grafana Dashboard (HTTP)
+  ufw:
+    rule: allow
+    port: '3000'
+    proto: tcp
+  when: ufw_allow_grafana | bool or 'grafana' in (enabled_roles | default([]))
+  become: true
+
 - name: Allow Wazuh Server (Agent communication)
   ufw:
     rule: allow
@@ -83,22 +90,13 @@
   when: ufw_allow_wazuh_server | bool or 'wazuh-server' in (enabled_roles | default([]))
   become: true
 
-- name: Allow Wazuh Indexer (REST API)
+- name: Allow Wazuh Indexer (API/Search)
   ufw:
     rule: allow
     port: "{{ wazuh_indexer_port | default('9200') }}"
     proto: tcp
   when: ufw_allow_wazuh_indexer | bool or 'wazuh-indexer' in (enabled_roles | default([]))
   become: true
-
-- name: Allow Grafana (Port 3000)
-  ufw:
-    rule: allow
-    port: '3000'
-    proto: tcp
-  when: "'grafana' in (enabled_roles | default([]))"
-  become: true
-
 
 - name: Allow additional TCP ports
   ufw:

@@ -1,17 +1,17 @@
 from nicegui import ui
 from reef.manager.core import GROUP_VARS_FILE, HOSTS_INI_FILE, load_current_config
 from reef.manager.ui_utils import page_header, card_style, status_badge
-from reef.manager.wazuh_api import fetch_wazuh_alert_summary, generate_report_text
+from reef.manager.pdf_report import fetch_wazuh_alert_summary, generate_report_pdf
 import datetime
 
 def show_dashboard():
-    page_header("Dashboard", "Security Infrastructure Manager")
+    page_header("Dashboard", "Overview of your security system")
 
     if not GROUP_VARS_FILE.exists():
         with ui.card().classes('w-full bg-amber-500/10 border-amber-500/20'):
             with ui.row().classes('items-center gap-4'):
                 ui.icon('warning', size='lg').classes('text-amber-500')
-                ui.label("Configuration missing. Please go to the Configuration tab to initialize the system.").classes('text-amber-500 text-lg')
+                ui.label("Configuration missing. Please go to the Configuration tab to set up your system.").classes('text-amber-500 text-lg')
         return
 
     # Load data
@@ -62,24 +62,29 @@ def show_dashboard():
     import httpx
     
     async def download_report():
-        ui.notify('Generating report...', type='info')
-        summary = await fetch_wazuh_alert_summary()
-        if summary:
-            report_content = generate_report_text(summary)
-            # Create a localized timestamp for filename
-            filename = f"reef_report_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-            ui.download(report_content.encode('utf-8'), filename)
-            ui.notify('Report generated successfully!', type='positive')
+        ui.notify('Generating PDF report... Please wait.', type='info')
+        data = await fetch_wazuh_alert_summary()
+        if data:
+            try:
+                # Convert bytearray to bytes for nicegui
+                pdf_bytes = bytes(generate_report_pdf(data))
+                # Create a localized timestamp for filename
+                filename = f"Reef_Security_Report_{datetime.datetime.now().strftime('%Y-%m-%d')}.pdf"
+                ui.download(pdf_bytes, filename)
+                ui.notify('Report generated successfully!', type='positive')
+            except Exception as e:
+                ui.notify(f'Error generating PDF: {e}', type='negative')
+                print(f"PDF Error: {e}")
         else:
-            ui.notify('Failed to generate report. Check Wazuh connection.', type='negative')
+            ui.notify('Failed to fetch data from Wazuh.', type='negative')
 
     async def check_wazuh(label_status, spinner):
         try:
-            url = f"https://{manager_ip}"
+            url = f"http://{manager_ip}:3000"
             async with httpx.AsyncClient(verify=False, timeout=2.0) as client:
                 response = await client.get(url)
-                # Any response suggests it's up, even 401/403/200
-                if response.status_code in [200, 401, 403, 302]:
+
+                if response.status_code in [200, 302]:
                      spinner.visible = False
                      label_status.classes(remove='text-slate-500', add='text-emerald-400')
                      label_status.text = "Online"
@@ -134,7 +139,7 @@ def show_dashboard():
         # Core Infrastructure Card
         with ui.column().classes(card_style()):
             with ui.row().classes('w-full justify-between items-center mb-4 border-b border-white/10 pb-2'):
-                ui.label('Core Infrastructure').classes('text-slate-400 font-bold')
+                ui.label('System Health').classes('text-slate-400 font-bold')
                 ui.button(on_click=refresh_infrastructure).props('icon=refresh flat dense round size=sm').classes('text-slate-500 hover:text-white')
             
             with ui.column().classes('gap-6 w-full'):
@@ -144,6 +149,7 @@ def show_dashboard():
                     with ui.column().classes('gap-0'):
                         ui.label('SYSTEM STATUS').classes('text-xs text-slate-500 font-bold')
                         status_badge(HOSTS_INI_FILE.exists(), "Active", "Pending Setup")
+                        ui.tooltip("Shows if the system is configured and ready to use").classes('text-slate-300 text-xs')
                     
                     #with ui.column().classes('gap-0 items-end'):
                         #ui.label('MANAGER NODE').classes('text-xs text-slate-500 font-bold')
@@ -157,6 +163,7 @@ def show_dashboard():
                         
                         with ui.column().classes('gap-0'):
                             ui.label('Security Dashboard').classes('text-slate-200 font-bold text-lg')
+                            ui.label('View alerts and events').classes('text-slate-400 text-xs')
                             with ui.row().classes('items-center gap-2'):
                                 status_label = ui.label('Checking...').classes('text-xs text-slate-500')
                                 spinner = ui.spinner('dots', size='xs').classes('text-slate-500')
@@ -171,8 +178,8 @@ def show_dashboard():
                         ui.icon('monitor')
                     
                     with ui.column().classes('gap-0'):
-                        ui.label(f'{manager_count} Managers').classes('text-slate-200 font-bold text-lg')
-                        ui.label('Inventory Endpoints').classes('text-slate-400 text-sm')
+                        ui.label(f'{manager_count} Security Servers').classes('text-slate-200 font-bold text-lg')
+                        ui.label('Central Management Nodes').classes('text-slate-400 text-sm')
                 
                 if manager_ips:
                     with ui.scroll_area().classes('w-full h-24 gap-1'):
@@ -193,8 +200,8 @@ def show_dashboard():
                         ui.icon('monitor')
                     
                     with ui.column().classes('gap-0'):
-                        ui.label(f'{agent_count} Agents').classes('text-slate-200 font-bold text-lg')
-                        ui.label('Inventory Endpoints').classes('text-slate-400 text-sm')
+                        ui.label(f'{agent_count} Protected Computers').classes('text-slate-200 font-bold text-lg')
+                        ui.label('Monitored Devices').classes('text-slate-400 text-sm')
                 
                 if agent_ips:
                     with ui.scroll_area().classes('w-full h-24 gap-1'):
@@ -209,9 +216,12 @@ def show_dashboard():
                 else:
                     ui.label('No agents found.').classes('col-span-2 text-slate-500')
 
+                
+
+
         # Active Roles Card
         with ui.column().classes(card_style()):
-            ui.label('Active Components').classes('text-slate-400 font-bold mb-4 border-b border-white/10 pb-2 w-full')
+            ui.label('Installed Features').classes('text-slate-400 font-bold mb-4 border-b border-white/10 pb-2 w-full')
             
             with ui.grid(columns=2).classes('w-full gap-3 mb-6'):
                 if enabled_roles:
@@ -230,19 +240,21 @@ def show_dashboard():
                 with ui.row().classes('gap-6'):
                     with ui.column().classes('gap-0'):
                         ui.label('Config File').classes('text-xs text-slate-400')
-                        ui.label('group_vars/all.yml').classes('text-sm text-slate-300')
+                        ui.label('Main Settings').classes('text-sm text-slate-300')
+                        ui.tooltip("group_vars/all.yml").classes('text-slate-300 text-xs')
                     
                     with ui.column().classes('gap-0'):
                         ui.label('Inventory').classes('text-xs text-slate-400')
-                        ui.label('hosts.ini').classes('text-sm text-slate-300')
+                        ui.label('Computer List').classes('text-sm text-slate-300')
+                        ui.tooltip("hosts.ini").classes('text-slate-300 text-xs')
 
         # Reports Card
         with ui.column().classes(card_style()):
             ui.label('Security Reports').classes('text-slate-400 font-bold mb-4 border-b border-white/10 pb-2 w-full')
-            ui.label('Generate a summary of security alerts from the last 24 hours.').classes('text-slate-400 text-sm mb-4')
+            ui.label('Generate a comprehensive PDF audit based on Wazuh data.').classes('text-slate-400 text-sm mb-4')
             
             with ui.row().classes('items-center gap-4'):
-                ui.button('Download Summary (TXT)', on_click=download_report).props('icon=description color=indigo').classes('w-full')
+                ui.button('Download Audit Report (PDF)', on_click=download_report).props('icon=picture_as_pdf').classes('w-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors')
 
     # Trigger check
     ui.timer(0.1, lambda: check_wazuh(status_label, spinner), once=True)

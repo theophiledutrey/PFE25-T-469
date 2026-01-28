@@ -1,20 +1,19 @@
 ---
-- include_tasks: clean.yml
 
-#- name: Check if Wazuh installation directory exists
-#  stat:
-#    path: /opt/wazuh-install
-#  register: wazuh_install_dir
+- name: Check if Wazuh installation directory exists
+  stat:
+    path: /opt/wazuh-install
+  register: wazuh_install_dir
 
-#- name: Check if Wazuh installation script exists
-#  stat:
-#    path: /opt/wazuh-install/wazuh-install.sh
-#  register: wazuh_install_script
+- name: Check if Wazuh installation script exists
+  stat:
+    path: /opt/wazuh-install/wazuh-install.sh
+  register: wazuh_install_script
 
-#- name: Fail if Wazuh installation script is missing
-#  fail:
-#    msg: "Wazuh installation script not found. Ensure wazuh-indexer role has run successfully."
-#  when: not wazuh_install_dir.stat.exists or not wazuh_install_script.stat.exists
+- name: Fail if Wazuh installation script is missing
+  fail:
+    msg: "Wazuh installation script not found. Ensure wazuh-indexer role has run successfully."
+  when: not wazuh_install_dir.stat.exists or not wazuh_install_script.stat.exists
 
 
 - name: Install Wazuh Dashboard

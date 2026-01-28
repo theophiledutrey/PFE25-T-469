@@ -3,7 +3,7 @@ from reef.manager.core import SchemaManager, update_yaml_config_from_schema, upd
 from reef.manager.ui_utils import page_header, card_style
 
 def show_configuration():
-    page_header("Configuration", "Configure deployment variables")
+    page_header("Settings", "Configure your security environment")
     
     schema_file = BASE_DIR / "config.schema.yml"
     schema_mgr = SchemaManager(schema_file)
@@ -66,14 +66,14 @@ def show_configuration():
                             is_password = 'password' in var_name or 'secret' in var_name
                             form_inputs[var_name] = ui.input(desc, value=str(default_val) if default_val else "", password=is_password).classes('w-full text-slate-300')
 
-        ui.button("Save Configuration", on_click=save_config).classes('bg-indigo-600 w-full')
+        ui.button("Save Settings", on_click=save_config).classes('bg-indigo-600 w-full')
 
     # --- Agents Inventory Section ---
     ui.separator().classes('my-8 bg-slate-700')
     
     with ui.column().classes(card_style() + ' w-full'):
-        ui.label("Agent Inventory").classes('text-xl font-bold text-slate-200 mb-2')
-        ui.markdown("Agent IPs and Credentials for `hosts.ini` generation (Required for deployment).").classes('text-slate-400 mb-6')
+        ui.label("Computer Inventory").classes('text-xl font-bold text-slate-200 mb-2')
+        ui.markdown("List the computers you want to protect. You need to provide their IP address and login credentials so the system can install the necessary software.").classes('text-slate-400 mb-6')
 
         if GROUP_VARS_FILE.exists():
             # Reload to get fresh count if it changed
@@ -82,7 +82,7 @@ def show_configuration():
             
             # Helper to parse current inventory
             existing_agents = []
-            existing_manager = {'user': 'root', 'password': ''}
+            existing_manager = {'user': 'root', 'password': '', 'key': ''}
 
             if HOSTS_INI_FILE.exists():
                 content = HOSTS_INI_FILE.read_text()
@@ -106,51 +106,54 @@ def show_configuration():
                     ip = parts[0]
                     user = "root"
                     pw = ""
+                    key = ""
                     
                     for p in parts[1:]:
                         if p.startswith("ansible_user="):
                             user = p.split("=", 1)[1]
                         elif p.startswith("ansible_ssh_pass=") or p.startswith("ansible_password="):
                             pw = p.split("=", 1)[1]
+                        elif p.startswith("ansible_ssh_private_key_file="):
+                            key = p.split("=", 1)[1]
 
                     if current_section in ['agents', 'wazuh_agents']:
-                        existing_agents.append({'ip': ip, 'user': user, 'password': pw})
+                        existing_agents.append({'ip': ip, 'user': user, 'password': pw, 'key': key})
                     elif current_section == 'security_server':
                         existing_manager['user'] = user
                         existing_manager['password'] = pw
+                        existing_manager['key'] = key
 
             if count > 0:
                 agent_inputs = []
                 
                 with ui.column().classes('gap-4 w-full'):
                     for i in range(count):
-                        ui.label(f"Agent {i+1}").classes('font-bold text-slate-300 mt-2')
+                        ui.label(f"Computer {i+1}").classes('font-bold text-slate-300 mt-2')
                         
                         def_ip = existing_agents[i]['ip'] if i < len(existing_agents) else ""
                         def_user = existing_agents[i]['user'] if i < len(existing_agents) else "root"
                         def_pw = existing_agents[i]['password'] if i < len(existing_agents) else ""
+                        def_key = existing_agents[i]['key'] if i < len(existing_agents) else ""
                         
-                        with ui.grid(columns=3).classes('w-full gap-4'):
+                        with ui.grid(columns=4).classes('w-full gap-4'):
                             ip_in = ui.input("IP Address", value=def_ip).classes('w-full')
                             user_in = ui.input("SSH User", value=def_user).classes('w-full')
                             pw_in = ui.input("SSH Password", value=def_pw, password=True).classes('w-full')
+                            key_in = ui.input("SSH Key Path", value=def_key).classes('w-full')
                             
-                            agent_inputs.append({'ip': ip_in, 'user': user_in, 'pw': pw_in})
+                            agent_inputs.append({'ip': ip_in, 'user': user_in, 'pw': pw_in, 'key': key_in})
                     
                     ui.separator().classes('my-4 bg-white/10')
                     
                     # Manager Credentials
                     ex_mgr_user = existing_manager['user']
                     ex_mgr_pw = existing_manager['password']
-                    # Quick parse for manager (simplified)
-                    if HOSTS_INI_FILE.exists():
-                        pass # Reusing logic from Streamlit or implementing fully? 
-                        # For now, let's keep it simple or copy the logic if needed. 
-                        # To save space, assuming defaults or previous values if known.
-                        # Real implementation should probably have a proper parser utility.
+                    ex_mgr_key = existing_manager['key']
                         
-                    mgr_user_in = ui.input("Manager SSH User", value=ex_mgr_user).classes('w-full')
-                    mgr_pass_in = ui.input("Manager SSH Password", value=ex_mgr_pw, password=True).classes('w-full')
+                    with ui.grid(columns=4).classes('w-full gap-4'):
+                        mgr_user_in = ui.input("Security Server User", value=ex_mgr_user).classes('w-full')
+                        mgr_pass_in = ui.input("Security Server Password", value=ex_mgr_pw, password=True).classes('w-full')
+                        mgr_key_in = ui.input("Security Server Key Path", value=ex_mgr_key).classes('w-full')
 
                     def save_inventory():
                         # Collect data
@@ -159,13 +162,14 @@ def show_configuration():
                             agents_data.append({
                                 'ip': row['ip'].value,
                                 'user': row['user'].value,
-                                'password': row['pw'].value
+                                'password': row['pw'].value,
+                                'key': row['key'].value
                             })
                         
                         mgr_ip = fresh_config.get('wazuh_manager_ip')
-                        if update_ini_inventory(mgr_ip, mgr_user_in.value, mgr_pass_in.value, agents_data):
+                        if update_ini_inventory(mgr_ip, mgr_user_in.value, mgr_pass_in.value, mgr_key_in.value, agents_data):
                             ui.notify("Inventory updated!", type='positive')
 
-                    ui.button("Update Inventory (hosts.ini)", on_click=save_inventory).classes('bg-emerald-600 w-full mt-4')
+                    ui.button("Save Computer List", on_click=save_inventory).classes('bg-emerald-600 w-full mt-4')
             else:
                  ui.label("Set 'endpoint_count' > 0 in configuration above to configure agents.").classes('text-amber-400')
