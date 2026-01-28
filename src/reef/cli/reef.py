@@ -868,19 +868,23 @@ def show_post_deployment_msg():
         except:
             pass
 
-    password_file = ANSIBLE_DIR / "wazuh-admin-password.txt"
+    password_file = INVENTORY_DIR / "wazuh-admin-password.txt"
     password = "See wazuh-admin-password.txt"
     
     if password_file.exists():
         try:
-            content = password_file.read_text()
-            # Regex to find admin password in the provided format
-            # Looks for indexer_username: 'admin' and then captures the associated password
-            match = re.search(r"indexer_username:\s*'admin'.*?indexer_password:\s*'([^']+)'", content, re.DOTALL)
-            if match:
-                password = match.group(1)
+            content = password_file.read_text().strip()
+            # Check if file contains the key-value structure or just the password
+            if "indexer_username" in content:
+                # Regex to find admin password in the provided format
+                match = re.search(r"indexer_username:\s*'admin'.*?indexer_password:\s*'([^']+)'", content, re.DOTALL)
+                if match:
+                    password = match.group(1)
+                else:
+                    password = "Password not found (check format)"
             else:
-                password = "Password not found (check format in ansible/wazuh-admin-password.txt)"
+                # Assume raw password
+                password = content
         except Exception as e:
             password = f"Error reading file: {e}"
             
@@ -889,7 +893,7 @@ def show_post_deployment_msg():
         f"Access Wazuh Dashboard at: [link=https://{manager_ip}/app/login?]https://{manager_ip}/app/login?[/link]\n"
         f"User: [bold]admin[/bold]\n"
         f"Password: [bold]{password}[/bold]",
-        subtitle=f"(Information has been saved to [blue]{ANSIBLE_DIR}/wazuh-admin-password.txt[/blue])",
+        subtitle=f"(Information has been saved to [blue]{password_file}[/blue])",
         title="Operation Summary",
         border_style="green"
     ))# https://192.168.64.12/app/login?next=%2Fapp%2Fdashboard

@@ -1,7 +1,7 @@
 from nicegui import ui
 from reef.manager.core import GROUP_VARS_FILE, HOSTS_INI_FILE, load_current_config
 from reef.manager.ui_utils import page_header, card_style, status_badge
-from reef.manager.wazuh_api import fetch_wazuh_alert_summary, generate_report_pdf
+from reef.manager.pdf_report import fetch_wazuh_alert_summary, generate_report_pdf
 import datetime
 
 def show_dashboard():
@@ -254,7 +254,7 @@ def show_dashboard():
             ui.label('Generate a comprehensive PDF audit based on Wazuh data.').classes('text-slate-400 text-sm mb-4')
             
             with ui.row().classes('items-center gap-4'):
-                ui.button('Download Audit Report (PDF)', on_click=download_report).props('icon=picture_as_pdf color=red-5').classes('w-full')
+                ui.button('Download Audit Report (PDF)', on_click=download_report).props('icon=picture_as_pdf').classes('w-full bg-indigo-600 text-white hover:bg-indigo-700 transition-colors')
 
     # Trigger check
     ui.timer(0.1, lambda: check_wazuh(status_label, spinner), once=True)

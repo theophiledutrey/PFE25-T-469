@@ -90,6 +90,14 @@
   when: ufw_allow_wazuh_server | bool or 'wazuh-server' in (enabled_roles | default([]))
   become: true
 
+- name: Allow Wazuh Indexer (API/Search)
+  ufw:
+    rule: allow
+    port: "{{ wazuh_indexer_port | default('9200') }}"
+    proto: tcp
+  when: ufw_allow_wazuh_indexer | bool or 'wazuh-indexer' in (enabled_roles | default([]))
+  become: true
+
 - name: Allow additional TCP ports
   ufw:
     rule: allow

@@ -3,5 +3,6 @@ rich
 ruamel.yaml
 pytest
 ansible-core
-nicegui
+httpx
 fpdf2
+nicegui

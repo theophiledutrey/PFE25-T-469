@@ -1,11 +1,10 @@
 import httpx
-import json
 import datetime
 from pathlib import Path
 from fpdf import FPDF
 from reef.manager.core import load_current_config
 
-WAZUH_PASSWORD_FILE = Path(__file__).parent.parent / "ansible" / "wazuh-admin-password.txt"
+WAZUH_PASSWORD_FILE = Path(__file__).parent.parent / "ansible" / "inventory" / "wazuh-admin-password.txt"
 
 def get_wazuh_credentials():
     config = load_current_config()
@@ -16,39 +15,12 @@ def get_wazuh_credentials():
         password = WAZUH_PASSWORD_FILE.read_text().strip()
     return manager_ip, user, password
 
-async def get_wazuh_api_token(client, manager_ip, user, password):
-    """Authenticate with Wazuh API (Port 55000) to get JWT token."""
-    url = f"https://{manager_ip}:55000/security/user/authenticate"
-    try:
-        response = await client.get(url, auth=(user, password))
-        response.raise_for_status()
-        return response.json()['data']['token']
-    except Exception as e:
-        print(f"Error getting Wazuh API token: {e}")
-        return None
 
-async def fetch_agents_status(client, manager_ip, token):
-    """Fetch agents status from Wazuh API."""
-    if not token:
-        return []
-    
-    url = f"https://{manager_ip}:55000/agents"
-    headers = {"Authorization": f"Bearer {token}"}
-    try:
-        response = await client.get(url, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        return data.get('data', {}).get('affected_items', [])
-    except Exception as e:
-        print(f"Error fetching agents: {e}")
-        return []
 
 async def fetch_wazuh_alert_summary(time_range="now-24h"):
     """
-    Fetches comprehensive data for the report:
-    1. Alert summary (Indexer)
-    2. Top alerts (Indexer)
-    3. Agent status (API)
+    Fetches comprehensive data for the report ONLY from Indexer (9200).
+    Aggregates alerts to infer agent activity, ignoring Port 55000.
     """
     manager_ip, user, password = get_wazuh_credentials()
     
@@ -62,19 +34,11 @@ async def fetch_wazuh_alert_summary(time_range="now-24h"):
         "period": time_range
     }
 
-    async with httpx.AsyncClient(verify=False, timeout=10.0) as client:
-        # 1. API Calls (Agents)
-        token = await get_wazuh_api_token(client, manager_ip, user, password)
-        if token:
-            data_out["agents"] = await fetch_agents_status(client, manager_ip, token)
+    indexer_url = f"https://{manager_ip}:9200/wazuh-alerts-*/_search"
 
-        # 2. Indexer Calls (Alerts)
-        indexer_url = f"https://{manager_ip}:9200/wazuh-alerts-*/_search"
+    async with httpx.AsyncClient(verify=False, timeout=10.0) as client:
         
-        # Combined query for Summary + Top Alerts to save time? 
-        # Actually separate queries is clearer for aggregations.
-        
-        # Query A: Summary by Level
+        # 1. Summary Query
         summary_query = {
             "size": 0,
             "query": {
@@ -111,10 +75,12 @@ async def fetch_wazuh_alert_summary(time_range="now-24h"):
                         data_out["summary"]['moderate'] += count
                     else:
                         data_out["summary"]['light'] += count
+                else:
+                    print(f"Error fetching summary: Status {resp_summary.status_code} - {resp_summary.text}")
         except Exception as e:
             print(f"Error fetching summary: {e}")
 
-        # Query B: Top Alerts (Description + Level)
+        # 2. Top Alerts Query
         top_query = {
             "size": 0,
             "query": {
@@ -155,8 +121,59 @@ async def fetch_wazuh_alert_summary(time_range="now-24h"):
                         "count": b['doc_count'],
                         "level": int(b.get('max_level', {}).get('value', 0))
                     })
+                else:
+                    print(f"Error fetching top alerts: Status {resp_top.status_code} - {resp_top.text}")
         except Exception as e:
             print(f"Error fetching top alerts: {e}")
+
+        # 3. Active Agents Query (Replacing API call)
+        agents_query = {
+             "size": 0,
+             "query": {
+                 "range": {
+                     "@timestamp": {
+                         "gte": time_range
+                     }
+                 }
+             },
+             "aggs": {
+                 "agents": {
+                     "terms": {
+                         "field": "agent.name",
+                         "size": 100
+                     },
+                     "aggs": {
+                         "ips": {
+                             "terms": {
+                                 "field": "agent.ip",
+                                 "size": 1
+                             }
+                         }
+                     }
+                 }
+             }
+        }
+
+        try:
+            resp_agents = await client.post(indexer_url, json=agents_query, auth=(user, password))
+            if resp_agents.status_code == 200:
+                a_data = resp_agents.json()
+                buckets = a_data.get('aggregations', {}).get('agents', {}).get('buckets', [])
+                for b in buckets:
+                    agent_name = b['key']
+                    ip_buckets = b.get('ips', {}).get('buckets', [])
+                    agent_ip = ip_buckets[0]['key'] if ip_buckets else "Unknown"
+                    
+                    data_out["agents"].append({
+                        "name": agent_name,
+                        "ip": agent_ip,
+                        "status": "active",
+                        "os": {"name": "N/A (Logs)"}
+                    })
+                else:
+                    print(f"Error fetching agents: Status {resp_agents.status_code} - {resp_agents.text}")
+        except Exception as e:
+            print(f"Error fetching agents from logs: {e}")
 
     return data_out
 
@@ -205,7 +222,40 @@ def generate_report_pdf(data):
     # Calculate global score/assessment (Simplified logic for PME)
     total_alerts = data['summary']['total']
     criticals = data['summary']['critical']
+    # Calculate global score/assessment (Simplified logic for PME)
+    total_alerts = data['summary']['total']
+    criticals = data['summary']['critical']
     severes = data['summary']['severe']
+    moderate = data['summary']['moderate']
+
+    # Risk Metrics Calculation
+    # Score weight: Critical(10), Severe(5), Moderate(1)
+    exposure_score = (criticals * 10) + (severes * 5) + (moderate * 1)
+    
+    if exposure_score > 2000:
+        exposure_level = "CRITIQUE (Action Immédiate)"
+        exposure_color = COLOR_DANGER
+    elif exposure_score > 1000:
+        exposure_level = "ÉLEVÉ (Surveillance Requise)"
+        exposure_color = COLOR_WARNING
+    else:
+        exposure_level = "FAIBLE (Situation Maîtrisée)"
+        exposure_color = COLOR_SUCCESS
+
+    # Scope of Impact Calculation
+    # Based on diversity of alerts and criticality
+    if criticals > 5:
+        impact_scope = "LARGE (Système Compromis)"
+        impact_color = COLOR_DANGER
+    elif criticals > 0:
+         impact_scope = "CIBLÉE (Menace Isolée)"
+         impact_color = COLOR_WARNING
+    elif severes > 10:
+         impact_scope = "ÉTENDUE (Multiples Alertes)"
+         impact_color = COLOR_WARNING
+    else:
+         impact_scope = "LIMITÉE (Maintenance / Bruit)"
+         impact_color = COLOR_SUCCESS
     
     if criticals > 0:
         status_text = "CRITIQUE"
@@ -215,7 +265,7 @@ def generate_report_pdf(data):
         status_text = "À RISQUE"
         status_color = COLOR_WARNING
         advice = "Niveau d'alerte élevé. Veuillez examiner les incidents sévères."
-    elif total_alerts > 1000: # Arbitrary anomaly
+    elif total_alerts > 2000: # Arbitrary anomaly
         status_text = "ANORMAL"
         status_color = COLOR_WARNING
         advice = "Volume d'activité inhabituel. Vérifiez s'il s'agit d'une attaque ou d'un bruit de fond."
@@ -229,6 +279,25 @@ def generate_report_pdf(data):
     pdf.cell(40, 10, "État Global : ", align='L')
     pdf.set_text_color(*status_color)
     pdf.cell(0, 10, status_text, new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.set_font('Helvetica', '', 11)
+    pdf.set_text_color(80, 80, 80)
+    pdf.cell(0, 10, status_text, new_x="LMARGIN", new_y="NEXT")
+
+    # Exposure & Impact Display
+    pdf.set_font('Helvetica', 'B', 11)
+    pdf.set_text_color(50, 50, 50)
+    
+    pdf.cell(45, 8, "Niveau d'Exposition : ", align='L')
+    pdf.set_text_color(*exposure_color)
+    pdf.cell(0, 8, exposure_level, new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.set_text_color(50, 50, 50)
+    pdf.cell(45, 8, "Portée de l'Impact : ", align='L')
+    pdf.set_text_color(*impact_color)
+    pdf.cell(0, 8, impact_scope, new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.ln(5)
     
     pdf.set_font('Helvetica', '', 11)
     pdf.set_text_color(80, 80, 80)
@@ -250,41 +319,32 @@ def generate_report_pdf(data):
         pdf.set_font('Helvetica', 'B', 10)
         pdf.set_fill_color(240, 240, 240)
         pdf.set_text_color(0, 0, 0)
-        pdf.cell(60, 8, "Nom de la machine", 1, 0, 'L', True)
-        pdf.cell(50, 8, "Adresse IP", 1, 0, 'L', True)
-        pdf.cell(40, 8, "État", 1, 0, 'C', True)
-        pdf.cell(40, 8, "OS", 1, 1, 'C', True) # new_x="LMARGIN", new_y="NEXT" implied by 1 as last arg
+        pdf.cell(100, 8, "Nom de la machine", 1, 0, 'L', True)
+        pdf.cell(90, 8, "Mises à jour (OS)", 1, 1, 'C', True)
 
         # Rows
         pdf.set_font('Helvetica', '', 10)
         for agent in data['agents']:
             name = agent.get('name', 'Unknown')
-            ip = agent.get('ip', 'Unknown')
+            # ip = agent.get('ip', 'Unknown') # Removed per request
             status = agent.get('status', 'Unknown')
-            os_name = agent.get('os', {}).get('name', 'N/A')
             
-            # Translate status for PME
+            # Logic for Updates (Placeholder as we only have logs)
+            # If status (activity) is active, we assume we are monitoring it.
+            # Without vulnerability-detector data, we can't be sure of "Up to Date".
             if status == "active":
-                status = "Connecté"
+                update_text = "Sous Surveillance" # Under Surveillance
                 pdf.set_text_color(*COLOR_SUCCESS)
-            elif status == "disconnected":
-                status = "Déconnecté"
-                pdf.set_text_color(*COLOR_DANGER)
             else:
-                pdf.set_text_color(*COLOR_WARNING)
+                update_text = "Inconnu"
+                pdf.set_text_color(*COLOR_SECONDARY)
 
-            pdf.cell(60, 8, name, 1, 0, 'L')
-            pdf.set_text_color(0, 0, 0) # Reset
-            pdf.cell(50, 8, ip, 1, 0, 'L')
+            pdf.cell(100, 8, name, 1, 0, 'L')
             
-            # Color logic again for the cell content
-            if status == "Connecté": pdf.set_text_color(*COLOR_SUCCESS)
-            elif status == "Déconnecté": pdf.set_text_color(*COLOR_DANGER)
-            else: pdf.set_text_color(*COLOR_WARNING)
+            # Color logic for the cell content
+            # update_text is already determined above
             
-            pdf.cell(40, 8, status, 1, 0, 'C')
-            pdf.set_text_color(0, 0, 0)
-            pdf.cell(40, 8, os_name[:15], 1, 1, 'C') # Truncate OS if too long
+            pdf.cell(90, 8, update_text, 1, 1, 'C')
 
     pdf.ln(10)
 

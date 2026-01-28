@@ -707,12 +707,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "transparent",
                 "value": 0
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 12
+              },
+              {
+                "color": "dark-red",
+                "value": 15
               }
             ]
           }
@@ -721,48 +725,76 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "rule.description"
+              "options": "Level"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 761
+                "value": 82
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "rule.level"
+              "options": "Level"
             },
             "properties": [
               {
-                "id": "custom.width",
-                "value": 81
+                "id": "custom.cellOptions",
+                "value": {
+                  "applyToRow": false,
+                  "mode": "basic",
+                  "type": "color-background"
+                }
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "Count"
+              "options": "Command"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 58
+                "value": 400
               }
             ]
           },
           {
             "matcher": {
               "id": "byName",
-              "options": "agent.name"
+              "options": "Device"
             },
             "properties": [
               {
                 "id": "custom.width",
-                "value": 133
+                "value": 140
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Description"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 365
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "timestamp"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
               }
             ]
           }
@@ -781,7 +813,7 @@
         "sortBy": [
           {
             "desc": true,
-            "displayName": "rule.level"
+            "displayName": "Level"
           }
         ]
       },
@@ -827,19 +859,133 @@
             "type": "grafana-opensearch-datasource",
             "uid": "wazuh-alerts"
           },
-          "luceneQueryType": "Metric",
+          "luceneQueryType": "Logs",
           "metrics": [
             {
               "id": "1",
-              "type": "count"
+              "type": "logs"
             }
           ],
-          "query": "rule.level:>=7",
+          "query": "",
           "refId": "A",
           "timeField": "timestamp"
         }
       ],
       "title": "Top Urgent Security Alerts",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "@timestamp": true,
+              "_id": true,
+              "_index": true,
+              "_source": true,
+              "_type": true,
+              "agent.id": true,
+              "agent.ip": true,
+              "data.command": false,
+              "data.dstuser": true,
+              "data.extra_data": true,
+              "data.pwd": true,
+              "data.arch": true,
+              "data.gid": true,
+              "data.home": true,
+              "data.shell": true,
+              "data.version": true,
+              "data.package": true,
+              "data.dpkg_status": true,
+              "data.sca.check.command": true,
+              "data.sca.check.directory": true,
+              "data.sca.check.file": true,
+              "data.sca.check.reason": true,
+              "data.sca.check.references": true,
+              "data.sca.check.compliance.hipaa": true,
+              "data.sca.check.compliance.cis": true,
+              "data.sca.check.compliance.cis_csc_v7": true,
+              "data.sca.check.compliance.cis_csc_v8": true,
+              "data.sca.check.compliance.cmmc_v2.0": true,
+              "data.sca.check.compliance.iso_27001-2013": true,
+              "data.sca.check.compliance.mitre_mitigations": true,
+              "data.sca.check.compliance.mitre_tactics": true,
+              "data.sca.check.compliance.mitre_techniques": true,
+              "data.sca.check.compliance.nist_sp_800-53": true,
+              "data.sca.check.compliance.pci_dss_v3.2.1": true,
+              "data.sca.check.compliance.pci_dss_v4.0": true,
+              "data.sca.check.compliance.soc_2": true,
+              "data.sca.check.description": true,
+              "data.sca.check.id": true,
+              "data.sca.check.previous_result": true,
+              "data.sca.check.rationale": true,
+              "data.sca.check.remediation": true,
+              "data.sca.check.result": true,
+              "data.sca.check.title": true,
+              "data.sca.description": true,
+              "data.sca.failed": true,
+              "data.sca.file": true,
+              "data.sca.invalid": true,
+              "data.sca.passed": true,
+              "data.sca.policy": true,
+              "data.sca.policy_id": true,
+              "data.sca.scan_id": true,
+              "data.sca.score": true,
+              "data.sca.total_checks": true,
+              "data.sca.type": true,
+              "data.srcip": true,
+              "data.srcport": true,
+              "data.srcuser": true,
+              "data.tty": true,
+              "data.uid": true,
+              "decoder.ftscomment": true,
+              "decoder.name": true,
+              "decoder.parent": true,
+              "full_log": true,
+              "id": true,
+              "input.type": true,
+              "location": true,
+              "manager.name": true,
+              "predecoder.hostname": true,
+              "predecoder.program_name": true,
+              "predecoder.timestamp": true,
+              "rule.cis": true,
+              "rule.cis_csc_v7": true,
+              "rule.cis_csc_v8": true,
+              "rule.description": false,
+              "rule.firedtimes": true,
+              "rule.gdpr": true,
+              "rule.gpg13": true,
+              "rule.groups": true,
+              "rule.hipaa": true,
+              "rule.id": true,
+              "rule.iso_27001-2013": true,
+              "rule.mail": true,
+              "rule.mitre.id": true,
+              "rule.mitre.tactic": true,
+              "rule.mitre.technique": true,
+              "rule.mitre_mitigations": true,
+              "rule.mitre_tactics": true,
+              "rule.mitre_techniques": true,
+              "rule.nist_800_53": true,
+              "rule.nist_sp_800-53": true,
+              "rule.pci_dss": true,
+              "rule.soc_2": true,
+              "rule.tsc": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "@timestamp": "",
+              "_type": "",
+              "agent.name": "Device",
+              "data.command": "Command",
+              "data.pwd": "",
+              "input.type": "",
+              "level": "Level",
+              "rule.description": "Description"
+            }
+          }
+        }
+      ],
       "type": "table"
     },
     {
