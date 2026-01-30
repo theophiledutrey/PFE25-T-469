@@ -352,8 +352,12 @@ def generate_terraform_vm_config(vm_specs, manager_ip=None, manager_ssh_user=Non
     
     Returns: {'success': True/False, 'terraform_dir': path, 'message': str}
     """
-    import crypt
     import time
+    import urllib.parse
+    try:
+        from passlib.hash import sha512_crypt
+    except Exception as e:
+        return {'success': False, 'message': f"Password hashing library missing: {e}. Please install 'passlib'."}
     
     try:
         terraform_dir = TERRAFORM_DIR
@@ -381,7 +385,7 @@ def generate_terraform_vm_config(vm_specs, manager_ip=None, manager_ssh_user=Non
         vms_data = []
         for spec in vm_specs:
             plain_pwd = spec.get('ssh_password', 'ubuntu')
-            hashed = crypt.crypt(plain_pwd, crypt.METHOD_SHA512)
+            hashed = sha512_crypt.hash(plain_pwd)
             vm_name_raw = spec.get('name', 'vm-unknown')
             # Derive a safe username: lowercase, keep alnum and dashes only; fallback to 'ubuntu' if empty
             import re

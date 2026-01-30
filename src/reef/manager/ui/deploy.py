@@ -3,7 +3,7 @@ import os
 import asyncio
 from pathlib import Path
 from reef.manager.core import ANSIBLE_DIR, HOSTS_INI_FILE, load_current_config, update_yaml_config_from_schema, create_vm, generate_terraform_vm_config, run_terraform_apply, get_manager_credentials_from_inventory
-from reef.manager.ui_utils import page_header, card_style, async_run_command, async_run_ansible_playbook
+from reef.manager.ui_utils import page_header, card_style, async_run_command, async_run_ansible_playbook, app_state
 
 def show_deploy():
     page_header("Installation & Management", "Install, update, or remove security software")
@@ -175,10 +175,115 @@ def show_deploy():
                     agent_select = ui.select(agent_options, label="Select Computer").classes('w-full text-slate-300')
                     agent_select.bind_visibility_from(target_scope, 'value', value='Specific Computer')
 
+                async def run_deployment():
+                    # Auto-save current selection before deploying
+                    save_roles(notify=False)
+                    
+                    deploy_log.clear()
+                    credentials_container.classes(add='hidden')
+                    credentials_container.clear()
+                    results_container.clear()
+                    
+                    # If requested, create VMs first using Terraform
+                    created_vms = []
+                    if create_vm_checkbox.value and vm_entries:
+                        ui.notify('Generating Terraform configuration for VMs...', type='info')
+                        deploy_log.push("[VM] Preparing Terraform configuration...\n")
+                        
+                        # Build VM specs from UI entries
+                        vm_specs = []
+                        for idx, entry in enumerate(vm_entries, start=1):
+                            name = entry['name'].value or f"vm-{idx}"
+                            ssh_pw = entry.get('ssh_password').value if entry.get('ssh_password') else 'ubuntu'
+                            os_choice = entry.get('type').value if entry.get('type') else 'ubuntu-22.04'
+                            
+                            vm_specs.append({
+                                'name': name,
+                                'ssh_password': ssh_pw,
+                                'os': os_choice
+                            })
+                            deploy_log.push(f"[VM#{idx}] Spec: name={name}, os={os_choice}\n")
+                        
+                        # Get Manager credentials from hosts.ini
+                        manager_ip, manager_ssh_user, manager_ssh_password = await asyncio.to_thread(get_manager_credentials_from_inventory)
+                        
+                        if not manager_ip or not manager_ssh_password:
+                            deploy_log.push("[ERROR] Manager credentials not found in hosts.ini. Please run 'UPDATE INVENTORY (HOSTS.INI)' in Configuration tab first.\n")
+                            return
+                        
+                        gen_result = await asyncio.to_thread(generate_terraform_vm_config, vm_specs, manager_ip, manager_ssh_user, manager_ssh_password)
+                        if gen_result.get('success'):
+                            deploy_log.push(f"[VM] {gen_result.get('message')}\n")
+                            
+                            # Run Terraform apply on manager (via SSH)
+                            deploy_log.push("[TF] Starting Terraform apply on manager...\n")
+                            tf_result = await asyncio.to_thread(
+                                run_terraform_apply,
+                                gen_result.get('terraform_dir'),
+                                lambda msg: deploy_log.push(msg),  # Log callback
+                                gen_result.get('manager_ssh_password'),  # SSH password
+                                gen_result.get('manager_ip'),  # Manager IP
+                                gen_result.get('manager_ssh_user')  # Manager SSH user
+                            )
+                            
+                            if tf_result.get('success'):
+                                deploy_log.push(f"[TF] {tf_result.get('message')}\n")
+                                created_vms = gen_result.get('vms', [])
+                                ui.notify('VMs created successfully!', type='positive')
+                            else:
+                                deploy_log.push(f"[TF] ERROR: {tf_result.get('message')}\n")
+                                ui.notify(f"VM creation failed: {tf_result.get('message')}", type='negative')
+                        else:
+                            deploy_log.push(f"[VM] ERROR: {gen_result.get('message')}\n")
+                            ui.notify(f"Failed to generate Terraform config: {gen_result.get('message')}", type='negative')
+
+                    playbook = ANSIBLE_DIR / "playbooks" / "experimental.yml"
+                    inventory = HOSTS_INI_FILE
+                    
+                    # Determine limit
+                    limit_arg = ""
+                    scope = target_scope.value
+                    if scope == 'Security Server Only':
+                        limit_arg = "-l security_server"
+                    elif scope == 'Specific Computer':
+                        if agent_select.value:
+                            limit_arg = f"-l {agent_select.value}"
+                        else:
+                            ui.notify("Please select an agent", type='warning')
+                            btn_deploy.enable()
+                            return
+
+                    cmd = f"ansible-playbook {playbook} -i {inventory} {limit_arg}"
+                    
+                    ret_code, full_output, task_results = await async_run_ansible_playbook(cmd, deploy_log)
+                    
+                    # Render Results Table
+                    if task_results:
+                         with results_container:
+                            ui.label("Installation Progress").classes('text-lg font-bold text-slate-200 mb-2')
+                            
+                            cols = [
+                                {'name': 'host', 'label': 'Computer', 'field': 'host', 'align': 'left'},
+                                {'name': 'task', 'label': 'Action', 'field': 'task', 'align': 'left'},
+                                {'name': 'status', 'label': 'Result', 'field': 'status', 'align': 'left'},
+                            ]
+                            
+                            table = ui.table(columns=cols, rows=task_results, row_key='task').classes('w-full')
+                            table.add_slot('body-cell-status', '''
+                                <q-td :props="props">
+                                    <q-badge :color="props.value === 'ok' ? 'green' : (props.value === 'changed' ? 'amber' : 'red')" text-color="black">
+                                        {{ props.value }}
+                                    </q-badge>
+                                </q-td>
+                            ''')
+
+                    if ret_code == 0:
+                         check_credentials(full_output)
+
                 # Deployment Action
                 with ui.column().classes(card_style() + ' w-full'):
                     with ui.row().classes('w-full gap-4'):
-                        btn_deploy = ui.button("Deploy", on_click=lambda: run_deployment()).classes('bg-indigo-600 flex-grow py-4 text-lg')
+                        btn_deploy = ui.button("Deploy", on_click=run_deployment).classes('bg-indigo-600 flex-grow py-4 text-lg')
                         btn_stop_deploy = ui.button("Stop", on_click=app_state.cancel_process).classes('bg-red-900 w-1/6 py-4 text-lg')
                         
                         btn_deploy.bind_enabled_from(app_state, 'running_process', backward=lambda x: x is None)
@@ -189,112 +294,6 @@ def show_deploy():
 
                     results_container = ui.column().classes('w-full mt-4')
 
-            async def run_deployment():
-                # Auto-save current selection before deploying
-                save_roles(notify=False)
-                
-                deploy_log.clear()
-                credentials_container.classes(add='hidden')
-                credentials_container.clear()
-                results_container.clear()
-                
-
-                
-                # If requested, create VMs first using Terraform
-                created_vms = []
-                if create_vm_checkbox.value and vm_entries:
-                    ui.notify('Generating Terraform configuration for VMs...', type='info')
-                    deploy_log.push("[VM] Preparing Terraform configuration...\n")
-                    
-                    # Build VM specs from UI entries
-                    vm_specs = []
-                    for idx, entry in enumerate(vm_entries, start=1):
-                        name = entry['name'].value or f"vm-{idx}"
-                        ssh_pw = entry.get('ssh_password').value if entry.get('ssh_password') else 'ubuntu'
-                        os_choice = entry.get('type').value if entry.get('type') else 'ubuntu-22.04'
-                        
-                        vm_specs.append({
-                            'name': name,
-                            'ssh_password': ssh_pw,
-                            'os': os_choice
-                        })
-                        deploy_log.push(f"[VM#{idx}] Spec: name={name}, os={os_choice}\n")
-                    
-                    # Get Manager credentials from hosts.ini
-                    manager_ip, manager_ssh_user, manager_ssh_password = await asyncio.to_thread(get_manager_credentials_from_inventory)
-                    
-                    if not manager_ip or not manager_ssh_password:
-                        deploy_log.push("[ERROR] Manager credentials not found in hosts.ini. Please run 'UPDATE INVENTORY (HOSTS.INI)' in Configuration tab first.\n")
-                        return
-                    
-                    gen_result = await asyncio.to_thread(generate_terraform_vm_config, vm_specs, manager_ip, manager_ssh_user, manager_ssh_password)
-                    if gen_result.get('success'):
-                        deploy_log.push(f"[VM] {gen_result.get('message')}\n")
-                        
-                        # Run Terraform apply on manager (via SSH)
-                        deploy_log.push("[TF] Starting Terraform apply on manager...\n")
-                        tf_result = await asyncio.to_thread(
-                            run_terraform_apply,
-                            gen_result.get('terraform_dir'),
-                            lambda msg: deploy_log.push(msg),  # Log callback
-                            gen_result.get('manager_ssh_password'),  # SSH password
-                            gen_result.get('manager_ip'),  # Manager IP
-                            gen_result.get('manager_ssh_user')  # Manager SSH user
-                        )
-                        
-                        if tf_result.get('success'):
-                            deploy_log.push(f"[TF] {tf_result.get('message')}\n")
-                            created_vms = gen_result.get('vms', [])
-                            ui.notify('VMs created successfully!', type='positive')
-                        else:
-                            deploy_log.push(f"[TF] ERROR: {tf_result.get('message')}\n")
-                            ui.notify(f"VM creation failed: {tf_result.get('message')}", type='negative')
-                    else:
-                        deploy_log.push(f"[VM] ERROR: {gen_result.get('message')}\n")
-                        ui.notify(f"Failed to generate Terraform config: {gen_result.get('message')}", type='negative')
-
-                playbook = ANSIBLE_DIR / "playbooks" / "experimental.yml"
-                inventory = HOSTS_INI_FILE
-                
-                # Determine limit
-                limit_arg = ""
-                scope = target_scope.value
-                if scope == 'Security Server Only':
-                    limit_arg = "-l security_server"
-                elif scope == 'Specific Computer':
-                    if agent_select.value:
-                        limit_arg = f"-l {agent_select.value}"
-                    else:
-                        ui.notify("Please select an agent", type='warning')
-                        btn_deploy.enable()
-                        return
-
-                cmd = f"ansible-playbook {playbook} -i {inventory} {limit_arg}"
-                
-                ret_code, full_output, task_results = await async_run_ansible_playbook(cmd, deploy_log)
-
-                # Render Results Table
-                if task_results:
-                     with results_container:
-                        ui.label("Installation Progress").classes('text-lg font-bold text-slate-200 mb-2')
-                        
-                        cols = [
-                            {'name': 'host', 'label': 'Computer', 'field': 'host', 'align': 'left'},
-                            {'name': 'task', 'label': 'Action', 'field': 'task', 'align': 'left'},
-                            {'name': 'status', 'label': 'Result', 'field': 'status', 'align': 'left'},
-                        ]
-                        
-                        table = ui.table(columns=cols, rows=task_results, row_key='task').classes('w-full')
-                        table.add_slot('body-cell-status', '''
-                            <q-td :props="props">
-                                <q-badge :color="props.value === 'ok' ? 'green' : (props.value === 'changed' ? 'amber' : 'red')" text-color="black">
-                                    {{ props.value }}
-                                </q-badge>
-                            </q-td>
-                        ''')
-
-                if ret_code == 0:
-                     check_credentials(full_output)
 
             async def create_vm_handler():
                 # Simple handler that calls the core.create_vm stub and reports results

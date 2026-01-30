@@ -36,7 +36,7 @@ resource "libvirt_volume" "test_disk" {
 
 # Cloud-init pour VM: test
 resource "libvirt_cloudinit_disk" "test_init" {
-  name = "cloudinit-test-90951153.iso"
+  name = "cloudinit-test-31200504.iso"
   pool = "default"
 
   user_data = templatefile(
@@ -44,7 +44,7 @@ resource "libvirt_cloudinit_disk" "test_init" {
     {
       hostname    = "test"
             user_name   = "test"
-      user_passwd = "$6$l4/eQa0OIvVJEp3f$RIvfU2KhVqhXXB7o4XsCvUHWxm6M8buXpsdxlE4GVDhhcPRFY67zxmQ0Yp7aIaI6KqJzER3MZp5Eo7AVbJgNF0"
+      user_passwd = "$6$rounds=656000$Il4tOlca/BKHZX2s$fxSxJBxCa1de/c0OHufH7s6XgKO/OANbiE.X7DShxo50IDT3VMVXKogMjtu0f1vz4TCE1HnQ.xTCEkptkiIqE."
     }
   )
 }

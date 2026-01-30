@@ -6,3 +6,4 @@ ansible-core
 httpx
 fpdf2
 nicegui
+passlib
